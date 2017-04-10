@@ -1,0 +1,13 @@
+{
+  "name": "lang-teacher",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron main.js",
+    "build": "electron-packager . LanguageTeacher --platform=win32 --arch=x64 --icon=img/favicon.ico --out=dist --ignore=dist --prune"
+  },
+  "devDependencies": {
+    "electron": "^1.4.1",
+    "electron-packager": "^8.5.1"
+  }
+}

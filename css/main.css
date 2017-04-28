@@ -120,8 +120,8 @@
 
     display: table;
 }
-.button:first-child{  margin-top: 0;  }
-.button:last-child{  margin-top: 50px;  }
+.button:first-child {  margin-top: 0;  }
+#soundBtn {  margin-top: 90px;  }
 
 .button > span {
     vertical-align: middle;
@@ -165,7 +165,8 @@
 }
 
 .wordPopupWrapper,
-.soundPopupWrapper {
+.soundPopupWrapper,
+.fontPopupWrapper {
     position: absolute;
     top: 0;
     left: 0;
@@ -196,7 +197,8 @@
     background: white;
 }
 
-.soundPopup{
+.soundPopup,
+.fontPopup{
     position: relative;
     top: 20%;
     margin: 0 auto;
@@ -210,7 +212,8 @@
     background: white;
 }
 
-.soundPopup .label {
+.soundPopup .label,
+.fontPopup .label {
     position: relative;
     top: 5px;
     left: 15px;
@@ -219,11 +222,13 @@
     display: inline-block;
 }
 
-#soundPopupResetBtn {
+#soundPopupResetBtn,
+#fontPopupResetBtn {
     position: absolute;
 }
 
-#soundPopupCancelBtn {
+#soundPopupCancelBtn,
+#fontPopupCancelBtn {
     float: right;
 }
 

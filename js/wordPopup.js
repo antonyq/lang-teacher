@@ -22,7 +22,7 @@ $(document).ready(function () {
             var file = event.originalEvent.dataTransfer.files[0];
 
             if (file.name.match(/jpg|gif|png/i)) {
-                $(".uploadImgArea").removeClass('rotated90 rotated180 rotated270');
+                $(".uploadImgArea").css('transform', 'none');
                 $(".uploadImgArea").addClass('changed');
 
                 var URL = window.URL || window.webkitURL;
@@ -62,12 +62,12 @@ $(document).ready(function () {
         if ($('.uploadImgArea').hasClass('loaded')) {
             $(".uploadImgArea").addClass('changed');
 
-            var matchCollection = $('.uploadImgArea').attr('class').match(/rotated([0-9]+)/);
+            var matchCollection = $('.uploadImgArea').attr('style').match(/rotate\(:?([0-9]+)deg\)/);
             imgRotation = matchCollection ? matchCollection[1] : 0;
-            $('.uploadImgArea').removeClass('rotated90 rotated180 rotated270');
+            $('.uploadImgArea').css('transform', 'none');
             if (imgRotation != 270) {
                 imgRotation = parseInt(imgRotation) + 90;
-                $('.uploadImgArea').addClass('rotated' + imgRotation);
+                $('.uploadImgArea').css('transform', 'rotate(' + imgRotation + 'deg)');
             } else {
                 imgRotation = 0;
             }
@@ -82,7 +82,7 @@ $(document).ready(function () {
             popupData.img = null;
 
             $(".uploadImgArea").removeAttr('style');
-            $(".uploadImgArea").removeClass('loaded rotated90 rotated180 rotated270');
+            $(".uploadImgArea").removeClass('loaded');
         }
     });
 
@@ -103,7 +103,8 @@ $(document).ready(function () {
             imgPath.real = null;
             imgRotation = 0;
             $(".wordPopupWrapper").hide();
-            $(".uploadImgArea").removeClass('loaded changed rotated90 rotated180 rotated270');
+            $(".uploadImgArea").removeAttr('style');
+            $(".uploadImgArea").removeClass('loaded changed');
             $(".inputWordArea").removeClass('changed');
             $(".inputWord").focus();
         });

@@ -38,10 +38,12 @@ class StorageManager {
             }
         }
 
-        if (localStorage.getItem('data') == null) localStorage.data = this.schema;
+        if (localStorage.getItem('config') == null) {
+            localStorage.setItem('config', JSON.stringify(this.schema.default.config));
+        }
 
-        this.dictionary = localStorage.getItem('dictionary');
-        this.config = localStorage.getItem('config');
+        this.dictionary = JSON.parse(localStorage.getItem('data'));
+        this.config = JSON.parse(localStorage.getItem('config'));
 
     }
 
@@ -49,26 +51,37 @@ class StorageManager {
 
 
     // DICTIONARY //
-
     getRecord(word) {
         try {
-            this.dictionary = localStorage.getItem('dictionary');
+            this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
             return this.dictionary[word].merge(this.dictionary.word);
         } catch (error) {
             return error;
         }
     };
 
+    getRecordsCount() {
+        try {
+            this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
+            return this.dictionary.length;
+        } catch (error) {
+            return error;
+        }
+    };
+
     getRandomWord() {
-        var words = Object.keys(localStorage.getItem('dictionary'));
-        return words[Math.floor(Math.random() * words.length)];
+        this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
+        if (this.dictionary) {
+            var words = Object.keys(this.dictionary);
+            return words[Math.floor(Math.random() * words.length)];
+        } else return null;
     };
 
     setRecord(word, options={}) {
         try {
-            this.dictionary = localStorage.getItem('dictionary');
+            this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
             this.dictionary[word] = options;
-            localStorage.setItem('dictionary', this.dictionary);
+            localStorage.setItem('dictionary', JSON.stringify(this.dictionary));
         } catch(error) {
             return error;
         }
@@ -76,9 +89,9 @@ class StorageManager {
 
     removeRecord(word) {
         try {
-            this.dictionary = localStorage.getItem('dictionary');
+            this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
             delete this.dictionary[word];
-            localStorage.setItem('dictionary', this.dictionary);
+            localStorage.setItem('dictionary', JSON.stringify(this.dictionary));
         } catch (error) {
             return error;
         }
@@ -88,11 +101,10 @@ class StorageManager {
 
 
     // CONFIG //
-
-    getConfig(mode, type, name) {
+    getConfig(type, name) {
         try {
-            this.config = localStorage.getItem('config');
-            return this.config[mode][type][name].merge(this.config.default[type][name]);
+            this.config = JSON.parse(localStorage.getItem('config'));
+            return this.config[type][name].merge(this.schema.default.config[type][name]);
         } catch (error) {
             return error;
         }
@@ -100,9 +112,9 @@ class StorageManager {
 
     setConfig(type, name, options={}) {
         try {
-            this.config = localStorage.getItem('config');
+            this.config = JSON.parse(localStorage.getItem('config'));
             this.config[mode][type][name] = options;
-            localStorage.setItem('config', this.config);
+            localStorage.setItem('config', JSON.stringify(this.config));
         } catch (error) {
             return error;
         }
@@ -110,9 +122,9 @@ class StorageManager {
 
     resetConfigItem(type) {
         try {
-            this.config = localStorage.getItem('config');
+            this.config = JSON.parse(localStorage.getItem('config'));
             delete this.config.custom[type];
-            localStorage.setItem('config', this.config);
+            localStorage.setItem('config', JSON.stringify(this.config));
         } catch (error) {
             return error;
         }
@@ -120,7 +132,7 @@ class StorageManager {
 
     resetConfig(type) {
         try {
-            localStorage.setItem('config', this.schema.default.config);
+            localStorage.setItem('config', JSON.stringify(this.schema.default.config));
         } catch (error) {
             return error;
         }

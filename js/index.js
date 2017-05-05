@@ -13,34 +13,36 @@ window.onload = function () {
 };
 
 function setWordImg (word) {
-    word = word || storageManager.getRandomRecord();
+    word = word || storageManager.getRandomWord();
 
-    var imgPath = (storageManager.getRecord(word).imgPath || "").replace(/\\/g, "/");
-    var imgRotation = storageManager.getRecord(word).imgRotation || null;
+    if (word) {
+        var imgPath = (storageManager.getRecord(word).imgPath || "").replace(/\\/g, "/");
+        var imgRotation = storageManager.getRecord(word).imgRotation || null;
 
-    $(".imgArea").css({
-        "background": "url('" + imgPath + "') center center no-repeat",
-        "background-size": "contain"
-    });
+        $(".imgArea").css({
+            "background": "url('" + imgPath + "') center center no-repeat",
+            "background-size": "contain"
+        });
 
-    $('.imgArea').css('transform', 'scale(1)' + ((imgRotation) ?  ' rotate(' + imgRotation + 'deg)' : ''));
+        $('.imgArea').css('transform', 'scale(1)' + ((imgRotation) ?  ' rotate(' + imgRotation + 'deg)' : ''));
 
 
-    $(".completeWord").html(word);
-    $(".inputWord").val("");
-    $(".inputWord").focus();
-    $(".wordList > li").each(function () {
-        if ($(this).html() == word) {
-            $(this).addClass("highlightedWord");
-        } else {
-            $(this).removeClass("highlightedWord");
+        $(".completeWord").html(word);
+        $(".inputWord").val("");
+        $(".inputWord").focus();
+        $(".wordList > li").each(function () {
+            if ($(this).html() == word) {
+                $(this).addClass("highlightedWord");
+            } else {
+                $(this).removeClass("highlightedWord");
+            }
+        });
+
+        try {
+            if ($(".wordList > li").length) $(".wordList").scrollTo(".highlightedWord");
+        } catch (e) {
+            return e;
         }
-    });
-
-    try {
-        if ($(".wordList > li").length) $(".wordList").scrollTo(".highlightedWord");
-    } catch (e) {
-        return e;
     }
 }
 
@@ -58,12 +60,14 @@ function setPreviousWordImg () {
 }
 
 function initWordList () {
-    var $wordList = $(".wordList"), i = 0;
-    $wordList.html("");
-    for (var word in storageManager.dictionary) {
-        $wordList.append("<li class='word' id='word" + (i++) + "' onclick='setWordImg($(this).html())'>" + word.toString() + "</li>");
+    if (storageManager.getRecordsCount()) {
+        var $wordList = $(".wordList"), i = 0;
+        $wordList.html("");
+        for (var word in storageManager.dictionary) {
+            $wordList.append("<li class='word' id='word" + (i++) + "' onclick='setWordImg($(this).html())'>" + word.toString() + "</li>");
+        }
+        setWordImg();
     }
-    setWordImg(storageManager.getRandomRecord().word);
 }
 
 function setWordPopup (word) {
@@ -94,6 +98,7 @@ function setWordPopup (word) {
         opacity: 1,
         display: 'block'
     }, 500);
+
     $(".wordPopupWrapper").show();
 
     $(".inputWordArea").focus();
@@ -114,8 +119,8 @@ function setSoundPopup () {
 }
 
 function setAudio () {
-    ['win', 'correct', 'wrong'].forEach(function (type) {
-        document.getElementsByClassName(type + 'Signal')[0].src = storageManager.getAudio(type).path;
+    ['win', 'correct', 'wrong'].forEach(function (name) {
+        document.getElementsByClassName(name + 'Signal')[0].src = storageManager.getConfig('audio', name).path;
     });
 }
 
@@ -155,16 +160,18 @@ function onInput (type) {
 
 function initEventListeners () {
     var timer = setInterval(() => {
-        var highlightedWord = $(".highlightedWord").html().toLowerCase(),
-            potentialWord = $(".inputWord").val();
+        if ($(".highlightedWord").html()) {
+            var highlightedWord = $(".highlightedWord").html().toLowerCase(),
+                potentialWord = $(".inputWord").val();
 
-        // var ratio = (highlightedWord.length - potentialWord.length) / highlightedWord.length;
-        var style = $('.imgArea').attr('style');
-        var transform = style.match(/transform/) ? style.match(/transform: ([^;]*);/)[1] : '';
-        var rotation = transform.match(/rotate/) ? transform.match(/rotate\((.+?)deg\)/)[1] : '';
-        var scale = transform.match(/scale/) ? transform.match(/scale\((.+?)\)/)[1] : '';
+            // var ratio = (highlightedWord.length - potentialWord.length) / highlightedWord.length;
+            var style = $('.imgArea').attr('style');
+            var transform = style.match(/transform/) ? style.match(/transform: ([^;]*);/)[1] : '';
+            var rotation = transform.match(/rotate/) ? transform.match(/rotate\((.+?)deg\)/)[1] : '';
+            var scale = transform.match(/scale/) ? transform.match(/scale\((.+?)\)/)[1] : '';
 
-        // $('.imgArea').css('transform', transform.replace('scale(' + scale + ')', 'scale(' + ratio + ')'));
+            // $('.imgArea').css('transform', transform.replace('scale(' + scale + ')', 'scale(' + ratio + ')'));
+        }
     }, 50);
 
     $(document).keydown(function(event) {

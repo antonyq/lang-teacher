@@ -74,6 +74,38 @@ $(document).ready(function () {
         }
     });
 
+    $('#wordPopupDownloadImgBtn').click(function () {
+        if ($('.uploadImgArea').hasClass('loaded')) {
+            $(".uploadImgArea").addClass('changed');
+        }
+
+        $('.wordPopupImgInput').click();
+
+        var file = document.getElementsByClassName('wordPopupImgInput')[0].files[0];
+
+        var reader = new FileReader();
+
+        reader.readAsDataURL(file);
+
+        reader.onloadend = function () {
+            if (file.name.match(/jpg|gif|png/i)) {
+                $(".uploadImgArea").css('transform', 'none');
+                $(".uploadImgArea").addClass('changed');
+
+                var URL = window.URL || window.webkitURL;
+                imgPath.blob = URL.createObjectURL(file);
+                imgPath.real = file.path;
+
+                $(".uploadImgArea").css({
+                    "background": "url(" + imgPath.blob + ") center center no-repeat",
+                    "background-size": "contain"
+                });
+
+                $(".uploadImgArea").addClass('loaded');
+            } else alert("Поддерживаются только JPG, PNG или GIF");
+        }
+    });
+
     $('#wordPopupRemoveImgBtn').click(function () {
         if ($('.uploadImgArea').hasClass('loaded')) {
             $('.uploadImgArea').addClass('changed');
@@ -95,19 +127,28 @@ $(document).ready(function () {
     });
 
     function onCloseWordPopup() {
-        $(".wordPopupWrapper").animate({
-            top: '-630px',
-            opacity: 0
-        }, 500 , function () {
-            imgPath.blob = null;
-            imgPath.real = null;
-            imgRotation = 0;
-            $(".wordPopupWrapper").hide();
-            $(".uploadImgArea").removeAttr('style');
-            $(".uploadImgArea").removeClass('loaded changed');
-            $(".inputWordArea").removeClass('changed');
-            $(".inputWord").focus();
-        });
+        $(".wordPopupWrapper").removeClass('open');
+        imgPath.blob = null;
+        imgPath.real = null;
+        imgRotation = 0;
+        $(".wordPopupWrapper").hide();
+        $(".uploadImgArea").removeAttr('style');
+        $(".uploadImgArea").removeClass('loaded changed');
+        $(".inputWordArea").removeClass('changed');
+        $(".inputWord").focus();
+        // $(".wordPopupWrapper").animate({
+        //     top: '-630px',
+        //     opacity: 0
+        // }, 500 , function () {
+        //     imgPath.blob = null;
+        //     imgPath.real = null;
+        //     imgRotation = 0;
+        //     $(".wordPopupWrapper").hide();
+        //     $(".uploadImgArea").removeAttr('style');
+        //     $(".uploadImgArea").removeClass('loaded changed');
+        //     $(".inputWordArea").removeClass('changed');
+        //     $(".inputWord").focus();
+        // });
     };
 
 });

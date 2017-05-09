@@ -63,7 +63,7 @@ class StorageManager {
     getRecordsCount() {
         try {
             this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
-            return this.dictionary.length;
+            return Object.keys(this.dictionary).length;
         } catch (error) {
             return error;
         }
@@ -79,7 +79,7 @@ class StorageManager {
 
     setRecord(word, options={}) {
         try {
-            this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
+            this.dictionary = JSON.parse(localStorage.getItem('dictionary')) || {};
             this.dictionary[word] = options;
             localStorage.setItem('dictionary', JSON.stringify(this.dictionary));
         } catch(error) {

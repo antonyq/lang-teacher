@@ -154,13 +154,22 @@
     background-size: contain !important;
 }
 
+.wordPopupImgInput {
+    display: none;
+}
+
 #wordPopupRotateImgBtn {
-    top: 80px;
+    top: 150px;
     background: url(../img/rotateImgBtn.png) no-repeat;
 }
 
+#wordPopupDownloadImgBtn {
+    top: 10px;
+    background: url(../img/downloadImg.png) no-repeat;
+}
+
 #wordPopupRemoveImgBtn {
-    top: 150px;
+    top: 80px;
     background: url(../img/removeImgBtn.png) no-repeat;
 }
 
@@ -180,13 +189,20 @@
 }
 
 .wordPopupWrapper {
-    top: -630px;
+    top: -700px;
     opacity: 0;
+    transition: top 0.5s ease,
+                opacity 0.5s ease;
+    display: block !important;
+}
+
+.wordPopupWrapper.open {
+    top: 0;
+    opacity: 1;
 }
 
 .wordPopup{
     position: relative;
-    margin-top: -315px;
     margin: 0 auto;
     height: 630px;
     width: 700px;

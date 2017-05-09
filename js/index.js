@@ -64,7 +64,9 @@ function initWordList () {
         var $wordList = $(".wordList"), i = 0;
         $wordList.html("");
         for (var word in storageManager.dictionary) {
-            $wordList.append("<li class='word' id='word" + (i++) + "' onclick='setWordImg($(this).html())'>" + word.toString() + "</li>");
+            if (storageManager.dictionary.hasOwnProperty(word)) {
+                $wordList.append("<li class='word' id='word" + (i++) + "' onclick='setWordImg($(this).html())'>" + word.toString() + "</li>");
+            }
         }
         setWordImg();
     }
@@ -93,11 +95,7 @@ function setWordPopup (word) {
         $(".inputWordArea").val("");
     }
 
-    $(".wordPopupWrapper").animate({
-        top: 0,
-        opacity: 1,
-        display: 'block'
-    }, 500);
+    $(".wordPopupWrapper").addClass('open');
 
     $(".wordPopupWrapper").show();
 
@@ -130,7 +128,7 @@ function stopAudio ($audioJQUERYObj) {
 }
 
 function startEffect (type) {
-    var duration = storageManager.getAudio(type).duration;
+    var duration = storageManager.getConfig('audio', type).duration;
     $(".main").addClass("main" + type.capitalizeFirstLetter() + "Input");
 
     var $audio = $('.' + type + 'Signal'),
@@ -217,7 +215,7 @@ function initEventListeners () {
                     onInput('win');
                     setTimeout(function () {
                         setNextWordImg();
-                    }, storageManager.getAudio('win').duration * 1000);
+                    }, storageManager.getConfig('audio', 'win').duration * 1000);
                 }
             } else {
                 if (String.fromCharCode(event.keyCode).toString().match(/^[a-zA-Z]+$/) && !highlightedWord[0].match(/^[a-zA-Z]+$/)) {

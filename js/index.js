@@ -8,6 +8,7 @@ window.onload = function () {
     remote.getCurrentWindow().toggleDevTools();
 
     window.storageManager = new StorageManager();
+    window.player = new Player('player');
 
     initApp();
 };
@@ -16,19 +17,22 @@ function setWordImg (word) {
     word = word || storageManager.getRandomWord();
 
     if (word) {
-        var imgPath = (storageManager.getRecord(word).imgPath || "").replace(/\\/g, "/");
-        var imgRotation = storageManager.getRecord(word).imgRotation || null;
+        var imgPath = (storageManager.getRecord(word).path || "").replace(/\\/g, "/");
+        var imgRotation = storageManager.getRecord(word).rotation || null;
 
         $(".imgArea").css({
             "background": "url('" + imgPath + "') center center no-repeat",
             "background-size": "contain"
         });
 
-        $('.imgArea').css('transform', 'scale(1)' + ((imgRotation) ?  ' rotate(' + imgRotation + 'deg)' : ''));
+        if (imgRotation) {
+            setRotation($('.imgArea'), imgRotation);
+        }
 
 
         $(".completeWord").html(word);
-        $(".inputWord").val("");
+        $(".inputWord").val('');
+        $(".inputWord").attr('placeholder', word);
         $(".inputWord").focus();
         $(".wordList > li").each(function () {
             if ($(this).html() == word) {
@@ -60,16 +64,15 @@ function setPreviousWordImg () {
 }
 
 function initWordList () {
-    if (storageManager.getRecordsCount()) {
-        var $wordList = $(".wordList"), i = 0;
-        $wordList.html("");
-        for (var word in storageManager.dictionary) {
-            if (storageManager.dictionary.hasOwnProperty(word)) {
-                $wordList.append("<li class='word' id='word" + (i++) + "' onclick='setWordImg($(this).html())'>" + word.toString() + "</li>");
-            }
+    var $wordList = $(".wordList"), i = 0;
+    $wordList.html("");
+    console.log(storageManager.dictionary);
+    for (var word in storageManager.dictionary) {
+        if (storageManager.dictionary.hasOwnProperty(word)) {
+            $wordList.append("<li class='word' id='word" + (i++) + "' onclick='setWordImg($(this).html())'>" + word.toString() + "</li>");
         }
-        setWordImg();
     }
+    setWordImg();
 }
 
 function setWordPopup (word) {
@@ -78,16 +81,17 @@ function setWordPopup (word) {
 
     if (word) {
         popupData.word = word;
-        popupData.img = storageManager.getRecord(word).imgPath;
+        popupData.img = storageManager.getRecord(word).path;
         $(".inputWordArea").val(word);
-        var imgPath = (storageManager.getRecord(word).imgPath || "").replace(/\\/g, "/");
-        var imgRotation = storageManager.getRecord(word).imgRotation || null;
+        $('.wordPopup .label').html(storageManager.getRecord(word).audio.path.split('\\')[storageManager.getRecord(word).audio.path.split('\\').length - 1]);
+        var imgPath = (storageManager.getRecord(word).path || "").replace(/\\/g, "/");
+        var imgRotation = storageManager.getRecord(word).rotation || null;
         if (imgPath) {
             $(".uploadImgArea").css("background", "url('" + imgPath + "') center center / contain no-repeat");
             $(".uploadImgArea").addClass('loaded');
         }
         if (imgRotation) {
-            $(".uploadImgArea").css('transform', 'rotate(' + imgRotation + 'deg)');
+            setRotation($(".uploadImgArea"), imgRotation);
         }
     } else {
         popupData.word = null;
@@ -103,12 +107,33 @@ function setWordPopup (word) {
 }
 
 function setFontPopup () {
+    currentFontOptions = storageManager.getConfig('font', 'main');
     $(".fontPopupWrapper").fadeIn(500);
     $(".inputWordArea").focus();
 }
 
 function setFont () {
-    $('.main').css('font-family', storageManager.getFont(type).path);
+    try {
+        $('body style').remove();
+        var font = storageManager.getConfig('font', 'main');
+        $('.fontBox .label').html(font.name);
+        $('body').append(`
+            <style>
+                @font-face {
+                    font-family: '${font.name}';
+                    src: url('${font.path.replace(/\\/g, '/')}');
+                }
+                .main,
+                .wordPopupWrapper,
+                .soundPopupWrapper,
+                .fontPopupWrapper,
+                .uploadImgArea,
+                .inputWordArea {
+                    font-family: '${font.name}';
+                }
+            </style>
+        `);
+    } catch (e) {}
 }
 
 function setSoundPopup () {
@@ -116,33 +141,20 @@ function setSoundPopup () {
     $(".inputWordArea").focus();
 }
 
-function setAudio () {
-    ['win', 'correct', 'wrong'].forEach(function (name) {
-        document.getElementsByClassName(name + 'Signal')[0].src = storageManager.getConfig('audio', name).path;
-    });
-}
-
-function stopAudio ($audioJQUERYObj) {
-    $audioJQUERYObj[0].pause();
-    $audioJQUERYObj[0].currentTime = 0;
-}
-
 function startEffect (type) {
-    var duration = storageManager.getConfig('audio', type).duration;
+    var options = storageManager.getConfig('audio', type);
     $(".main").addClass("main" + type.capitalizeFirstLetter() + "Input");
 
-    var $audio = $('.' + type + 'Signal'),
-        audio = document.getElementsByClassName(type + 'Signal')[0];
-    $audio[0].play();
-
-    setTimeout(function () {
+    player.play(options.path, options.duration, function () {
         stopEffect(type);
-    }, duration * 1000);
+        if (type == 'win') {
+            setNextWordImg();
+        }
+    });
 }
 
 function stopEffect (type) {
     $(".main").removeClass("main" + type.capitalizeFirstLetter() + "Input");
-    stopAudio($("." + type + "Signal"));
 }
 
 function stopEffects () {
@@ -161,14 +173,6 @@ function initEventListeners () {
         if ($(".highlightedWord").html()) {
             var highlightedWord = $(".highlightedWord").html().toLowerCase(),
                 potentialWord = $(".inputWord").val();
-
-            // var ratio = (highlightedWord.length - potentialWord.length) / highlightedWord.length;
-            var style = $('.imgArea').attr('style');
-            var transform = style.match(/transform/) ? style.match(/transform: ([^;]*);/)[1] : '';
-            var rotation = transform.match(/rotate/) ? transform.match(/rotate\((.+?)deg\)/)[1] : '';
-            var scale = transform.match(/scale/) ? transform.match(/scale\((.+?)\)/)[1] : '';
-
-            // $('.imgArea').css('transform', transform.replace('scale(' + scale + ')', 'scale(' + ratio + ')'));
         }
     }, 50);
 
@@ -210,12 +214,10 @@ function initEventListeners () {
                 potentialWord = ($(".inputWord").val() + String.fromCharCode(event.keyCode)).toString().toLowerCase();
 
             if (highlightedWord.indexOf(potentialWord) == 0) {
-                if (!$(".main").hasClass("mainCorrectInput")) onInput('correct');
                 if (highlightedWord == potentialWord) {
                     onInput('win');
-                    setTimeout(function () {
-                        setNextWordImg();
-                    }, storageManager.getConfig('audio', 'win').duration * 1000);
+                } else if (!$(".main").hasClass("mainCorrectInput")) {
+                    onInput('correct');
                 }
             } else {
                 if (String.fromCharCode(event.keyCode).toString().match(/^[a-zA-Z]+$/) && !highlightedWord[0].match(/^[a-zA-Z]+$/)) {
@@ -244,6 +246,17 @@ function initEventListeners () {
         setWordPopup($(this).html());
     });
 
+    $('#listenBtn').click(() => {
+        if (player.isPlaying()) {
+            player.pause();
+        } else if ($(".highlightedWord").html()) {
+            var path = storageManager.getRecord($(".highlightedWord").html()).audio.path;
+            if (path) {
+                player.play(path);
+            }
+        }
+    });
+
     $("#newBtn").click(function () {
         setWordPopup();
     });
@@ -254,6 +267,10 @@ function initEventListeners () {
 
     $("#deleteBtn").click(function () {
         storageManager.removeRecord($(".highlightedWord").html());
+        $('.imgArea').css('background', 'none');
+        $('.completeWord').html('');
+        player.reset();
+        $(".inputWord").attr('placeholder', '');
         initWordList();
         $(".inputWord").focus();
     });
@@ -272,7 +289,7 @@ function initEventListeners () {
 function initApp () {
     initWordList();
     initEventListeners();
-    setAudio();
+    setFont();
 
     // $(".uploadImgArea").mCustomScrollbar({
     //     theme: 'dark',

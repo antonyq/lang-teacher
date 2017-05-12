@@ -73,7 +73,8 @@
 .wordArea{
     position: relative;
     height: 10%;
-    width: 100%;
+    float: left;
+    width: 85%;
     border-radius: 5%;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
@@ -86,6 +87,19 @@
     text-align: center;
     border: transparent;
     border-radius: 10px;
+}
+
+#listenBtn {
+    position: relative;
+    top: 20px;
+    height: 50px;
+    width: 10%;
+    margin-left: 5%;
+    float: left;
+    cursor: pointer;
+    background: url(../img/soundBtn.png) no-repeat;
+    background-size: contain;
+    transition: opacity 0.25s ease-out;
 }
 
 
@@ -189,7 +203,7 @@
 }
 
 .wordPopupWrapper {
-    top: -700px;
+    top: -100%;
     opacity: 0;
     transition: top 0.5s ease,
                 opacity 0.5s ease;
@@ -204,7 +218,7 @@
 .wordPopup{
     position: relative;
     margin: 0 auto;
-    height: 630px;
+    height: 700px;
     width: 700px;
     padding-top: 10px;
     padding-left: 10px;
@@ -238,6 +252,21 @@
     display: inline-block;
 }
 
+.fontPopup {
+    height: 90px;
+}
+
+.fontPopup .label {
+    width: 420px;
+}
+
+.fontPath {
+    position: relative;
+    top: 10px;
+    float: right;
+    width: 450px;
+}
+
 #soundPopupResetBtn,
 #fontPopupResetBtn {
     position: absolute;
@@ -251,6 +280,10 @@
 .soundBox {
     margin: 20px 0;
     border-radius: 10px;
+    height: 50px;
+}
+
+.fontBox {
     height: 50px;
 }
 
@@ -283,10 +316,27 @@
     background: url(../img/playMusicBtn.png) no-repeat;
     background-size: contain;
     display: inline-block;
+    transition: opacity 0.25s ease-out;
 }
 
-.playing {
-    animation: inverse-blink 0.25s ease-out;
+.playBtn:active,
+#removeWordSignalBtn:active,
+#listenBtn:active {
+    opacity: 0;
+}
+
+#removeWordSignalBtn {
+    position: relative;
+    top: 10px;
+    left: 10px;
+    margin-left: 10px;
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    background: url(../img/redCross.png) no-repeat;
+    background-size: contain;
+    display: inline-block;
+    transition: opacity 0.25s ease-out;
 }
 
 .uploadImgArea{
@@ -316,9 +366,22 @@
 .rotated180 {transform: rotate(180deg);}
 .rotated270 {transform: rotate(270deg);}
 
+.imgSizeBarWrapper {
+    position: absolute;
+    top: 40px;
+    right: 10px;
+    width: 15px;
+    height: 500px;
+    cursor: pointer;
+    overflow-y: auto;
+}
+
+.imgSizeBar {
+    height: 1000%;
+}
+
 .inputWordArea{
     position: relative;
-    margin-top: 20px;
     float: left;
     height: 45px;
     width: 300px;
@@ -349,7 +412,17 @@
 #wordPopupSaveBtn,
 #wordPopupCancelBtn {
     width: 170px;
-    margin-top: 20px;
+}
+
+.wordPopup .label {
+    position: relative;
+    top: 5px;
+    width: 189px;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-left: 20px;
+    margin-right: 62px;
+    display: inline-block;
 }
 
 

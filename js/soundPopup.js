@@ -1,44 +1,28 @@
-var winPath = null,
-    wrongPath = null,
-    correctPath = null;
-
 $(document).ready(function () {
-    $('.playBtn').click(function () {
-        if ($(this).hasClass('playing')) {
-            pauseSound();
-            $('.playBtn').removeClass('playing');
+    $('.soundPopup .playBtn').click(function () {
+        if (player.isPlaying()) {
+            player.pause();
         } else {
-            $('.playBtn').removeClass('playing');
-            $(this).addClass('playing');
-            playSound($(this).attr('id').match(/(?:correct|wrong|win)/i)[0]);
+            var type = $(this).attr('id').match(/(?:correct|wrong|win)/i)[0].toLowerCase();
+                if (document.getElementById(type + "SoundPath").files[0]  && document.getElementById(`${type}SoundDuration`).value) {
+                    var path = document.getElementById(type + "SoundPath").files[0].path,
+                        duration = document.getElementById(`${type}SoundDuration`).value;
+                    player.play(path, duration);
+                }
         }
-    });
-
-    $('.soundPopup input[type="file"]').on('change', function () {
-        var type = $(this).attr('id').match(/(?:correct|wrong|win)/i)[0];
-
-        $('#' + type + 'SoundPath').addClass('changed');
-
-        if (document.getElementById(type + 'SoundPath').files[0]) {
-            eval(type + 'Path = document.getElementById("' + type + 'SoundPath").files[0].path');
-        } else {
-            eval(type + 'Path = null');
-        }
-    });
-
-    $('.soundPopup input[type="number"]').on('change', function () {
-        var type = $(this).attr('id').match(/(?:correct|wrong|win)/i)[0];
-
-        $('#' + type + 'SoundDuration').addClass('changed');
     });
 
     $("#soundPopupSaveBtn").click(function (event) {
-        ['win', 'correct', 'wrong'].forEach(function (type) {
-            if (document.getElementById(type + 'SoundPath').files[0]) {
-                eval(type + ' = document.getElementById("' + type + '" + "SoundPath").files[0].path');
-                if (eval(type + 'Path')) storageManager.setAudio(type, eval(type + 'Path'), parseInt($('#' + type +'SoundDuration').val()) || 1);
-            }
+        $('.soundPopup input[type="file"]').each((index, fileInput) => {
+            var id = $(fileInput).attr('id'),
+                type = id.match(/(?:correct|wrong|win)/i)[0].toLowerCase();
+
+            storageManager.setConfig('audio', type, {
+                path: document.getElementById(id).files[0] ? document.getElementById(id).files[0].path : storageManager.getConfig('audio', type).path,
+                duration: document.getElementById(`${type}SoundDuration`).value ? parseInt(document.getElementById(`${type}SoundDuration`).value) : storageManager.getConfig('audio', type).duration
+            });
         });
+
         onCloseSoundPopup();
         event.stopPropagation();
         event.preventDefault();
@@ -46,12 +30,10 @@ $(document).ready(function () {
 
     $("#soundPopupResetBtn").click(function (event) {
         if (confirm('Вы точно хотите сбросить все звуковые настройки ?')) {
-            correctPath = null;
-            wrongPath = null;
             $('.current').html('');
             $('.soundPopup input[type="file"]').val('');
             $('.soundPopup input[type="number"]').val('1');
-            storageManager.resetAudio();
+            storageManager.resetConfigItem('audio');
             onCloseSoundPopup();
         }
     });
@@ -71,36 +53,15 @@ $(document).ready(function () {
     });
 
     function onCloseSoundPopup() {
-        stopSound();
-        setAudio();
-
-        $('.testSignal').removeAttr('src');
-        $('.playing').removeClass('playing');
-
-        $('#winSoundPath, #winSoundDuration, #correctSoundPath, #correctSoundDuration, #wrongSoundPath, #wrongSoundDuration').removeClass('changed');
-        $('.soundPopup input[type="number"]').val('1');
-        $('.soundPopup input[type="file"]').val('');
+        player.pause();
 
         $(".soundPopupWrapper").fadeOut(500, function () {
+            $('#winSoundPath, #winSoundDuration, #correctSoundPath, #correctSoundDuration, #wrongSoundPath, #wrongSoundDuration').removeClass('changed');
+            $('.soundPopup input[type="number"]').val('1');
+            $('.soundPopup input[type="file"]').val('');
+
             $(".inputWord").focus();
         });
     };
 
 });
-
-function playSound (type) {
-    var $audio = $('.testSignal');
-    $audio[0].pause();
-    $audio.attr('src', eval(type.toLowerCase() + 'Path'));
-    $audio[0].load();
-    $audio[0].oncanplaythrough = $audio[0].play();
-}
-
-function pauseSound() {
-    $('.testSignal')[0].pause();
-}
-
-function stopSound () {
-    $('.testSignal')[0].pause();
-    $('.testSignal')[0].currentTime = 0;
-}

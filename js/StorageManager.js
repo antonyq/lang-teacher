@@ -20,19 +20,21 @@ class StorageManager {
                     audio: {
                         win: {
                             path: __dirname + '\\audio\\win.wav',
-                            duration: 2
+                            duration: 3
                         },
                         wrong: {
                             path: __dirname + '\\audio\\wrong.wav',
-                            duration: 1
+                            duration: 0.5
                         },
                         correct: {
                             path: __dirname + '\\audio\\correct.wav',
-                            duration: 1
+                            duration: 0.5
                         }
                     },
                     font: {
-                        family: '"Comic Sans MS", cursive, sans-serif'
+                        main: {
+                            name: '"Comic Sans MS", cursive, sans-serif'
+                        }
                     }
                 }
             }
@@ -42,7 +44,7 @@ class StorageManager {
             localStorage.setItem('config', JSON.stringify(this.schema.default.config));
         }
 
-        this.dictionary = JSON.parse(localStorage.getItem('data'));
+        this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
         this.config = JSON.parse(localStorage.getItem('config'));
 
     }
@@ -87,6 +89,19 @@ class StorageManager {
         }
     };
 
+    hasRecord (word) {
+        try {
+            this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
+            if (this.dictionary[word]) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (error) {
+            return error;
+        }
+    }
+
     removeRecord(word) {
         try {
             this.dictionary = JSON.parse(localStorage.getItem('dictionary'));
@@ -113,7 +128,7 @@ class StorageManager {
     setConfig(type, name, options={}) {
         try {
             this.config = JSON.parse(localStorage.getItem('config'));
-            this.config[mode][type][name] = options;
+            this.config[type][name] = options;
             localStorage.setItem('config', JSON.stringify(this.config));
         } catch (error) {
             return error;
@@ -123,7 +138,7 @@ class StorageManager {
     resetConfigItem(type) {
         try {
             this.config = JSON.parse(localStorage.getItem('config'));
-            delete this.config.custom[type];
+            this.config[type] = this.schema.default.config[type];
             localStorage.setItem('config', JSON.stringify(this.config));
         } catch (error) {
             return error;

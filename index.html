@@ -16,9 +16,11 @@
 
     <script src="js/extension.js"></script>
 
+    <script src="js/Player.js"></script>
     <script src="js/StorageManager.js"></script>
     <script src="js/wordPopup.js"></script>
     <script src="js/soundPopup.js"></script>
+    <script src="js/fontPopup.js"></script>
     <script src="js/index.js"></script>
 </head>
 <body>
@@ -31,8 +33,9 @@
             <div class="imgArea"></div>
             <div class="completeWord"></div>
             <div class="wordArea">
-                <input type="text" class="inputWord" placeholder="Введите слово">
+                <input type="text" class="inputWord">
             </div>
+            <div id="listenBtn"></div>
         </div>
         <div class="rightArea">
             <div class="btnArea">
@@ -48,13 +51,20 @@
     <div class="wordPopupWrapper">
         <div class="wordPopup">
             <div class="closeBtn" id="wordPopupCloseBtn"></div>
-            <div class="uploadImgArea">
+            <div class="uploadImgArea" style="transform: rotate(0deg) scale(1)">
                 <span>Перетащите картинку сюда</span>
             </div>
+            <div class="imgSizeBarWrapper"><div class="imgSizeBar"></div></div>
             <div class="imgBtn" id="wordPopupDownloadImgBtn" title="Загрузить картинку"></div>
             <input class="wordPopupImgInput" type="file" />
             <div class="imgBtn" id="wordPopupRemoveImgBtn" title="Удалить картинку" ></div>
             <div class="imgBtn" id="wordPopupRotateImgBtn" title="Обернуть картинку" ></div>
+
+            <div class="soundBox" id="word">
+                <div class="playBtn" id="playWordSignalBtn" title="Включить"></div>
+                <div id="removeWordSignalBtn" title="Удалить"></div>
+                <div class="label">Проигрывающийся звук</div>
+            </div>
             <input type="text" class="inputWordArea" name="word" placeholder="Введите слово">
             <div class="popupBtn" id="wordPopupSaveBtn"><span>Сохранить</span></div>
             <div class="popupBtn" id="wordPopupCancelBtn"><span>Отмена</span></div>
@@ -81,50 +91,27 @@
             <div class="soundBox" id="wrong">
                 <div class="playBtn" id="playWrongSignalBtn"></div>
                 <div class="label">неправильная буква</div>
-                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wrongSoundPath" />
+                <input type="file" accept="audio/ttf, audio/otf" class="soundPath" id="wrongSoundPath" />
                 <div class="label">время проигрывания (сек.)</div>
                 <input type="number" min="1" value="1" id="wrongSoundDuration" />
             </div>
             <div class="popupBtn" id="soundPopupSaveBtn"><span>Сохранить</span></div>
             <div class="popupBtn" id="soundPopupCancelBtn"><span>Отмена</span></div>
             <div class="popupBtn" id="soundPopupResetBtn"><span>Стандартные</span></div>
-            <audio class="testSignal"></audio>
         </div>
     </div>
 
     <div class="fontPopupWrapper">
         <div class="fontPopup">
             <div class="closeBtn" id="fontPopupCloseBtn"></div>
-            <div class="soundBox win" id="win">
-                <div class="playBtn" id="playWinSignalBtn"></div>
-                <div class="label">правильное слово</div>
-                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="winSoundPath" />
-                <div class="label">время проигрывания (сек.)</div>
-                <input type="number" min="1" value="1" id="winSoundDuration" />
-            </div>
-            <div class="soundBox" id="correct">
-                <div class="playBtn" id="playCorrectSignalBtn"></div>
-                <div class="label">парвильная буква</div>
-                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="correctSoundPath" />
-                <div class="label">время проигрывания (сек.)</div>
-                <input type="number" min="1" value="1" id="correctSoundDuration" />
-            </div>
-            <div class="soundBox" id="wrong">
-                <div class="playBtn" id="playWrongSignalBtn"></div>
-                <div class="label">неправильная буква</div>
-                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wrongSoundPath" />
-                <div class="label">время проигрывания (сек.)</div>
-                <input type="number" min="1" value="1" id="wrongSoundDuration" />
+            <div class="fontBox">
+                <div class="label"></div>
+                <input type="file" accept="font/ttf, font/otf, font/woff" class="fontPath" id="fontPath" />
             </div>
             <div class="popupBtn" id="fontPopupSaveBtn"><span>Сохранить</span></div>
             <div class="popupBtn" id="fontPopupCancelBtn"><span>Отмена</span></div>
-            <div class="popupBtn" id="fontPopupResetBtn"><span>Стандартные</span></div>
-            <audio class="testSignal"></audio>
+            <div class="popupBtn" id="fontPopupResetBtn"><span>Стандартный</span></div>
         </div>
     </div>
-
-    <audio class="winSignal"></audio>
-    <audio class="correctSignal"></audio>
-    <audio class="wrongSignal"></audio>
 </body>
 </html>

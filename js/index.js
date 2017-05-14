@@ -18,16 +18,15 @@ function setWordImg (word) {
 
     if (word) {
         var imgPath = (storageManager.getRecord(word).path || "").replace(/\\/g, "/");
-        var imgRotation = storageManager.getRecord(word).rotation || null;
+        var imgScale = storageManager.getRecord(word).scale || 1;
+        var imgRotation = storageManager.getRecord(word).rotation || 0;
 
         $(".imgArea").css({
             "background": "url('" + imgPath + "') center center no-repeat",
             "background-size": "contain"
         });
 
-        if (imgRotation) {
-            setRotation($('.imgArea'), imgRotation);
-        }
+        setTransform('imgArea', {rotation: imgRotation, scale: imgScale});
 
 
         $(".completeWord").html(word);
@@ -84,19 +83,29 @@ function setWordPopup (word) {
         popupData.img = storageManager.getRecord(word).path;
         $(".inputWordArea").val(word);
         $('.wordPopup .label').html(storageManager.getRecord(word).audio.path.split('\\')[storageManager.getRecord(word).audio.path.split('\\').length - 1]);
-        var imgPath = (storageManager.getRecord(word).path || "").replace(/\\/g, "/");
-        var imgRotation = storageManager.getRecord(word).rotation || null;
-        if (imgPath) {
-            $(".uploadImgArea").css("background", "url('" + imgPath + "') center center / contain no-repeat");
-            $(".uploadImgArea").addClass('loaded');
-        }
-        if (imgRotation) {
-            setRotation($(".uploadImgArea"), imgRotation);
-        }
+
+        var options = {
+            path: (storageManager.getRecord(word).path || '').replace(/\\/g, '/'),
+            rotation: storageManager.getRecord(word).rotation || 0,
+            scale: storageManager.getRecord(word).scale || 1
+        };
+
+        setTransform('uploadImgArea', options);
+
+        var scrollElem = document.getElementsByClassName('imgSizeBarWrapper')[0];
+        scrollElem.scrollTop = (1 - storageManager.getRecord(word).scale || 1) * ($('.imgSizeBar').height() - $('.imgSizeBarWrapper').height());
+
+
+        $(".uploadImgArea").css("background", "url('" + options.path + "') center center / contain no-repeat");
+
+        $(".uploadImgArea").addClass('loaded');
+
     } else {
         popupData.word = null;
         popupData.img = null;
         $(".inputWordArea").val("");
+        setTransform('uploadImgArea');
+        document.getElementsByClassName('imgSizeBarWrapper')[0].scrollTop = 0;
     }
 
     $(".wordPopupWrapper").addClass('open');

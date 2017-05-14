@@ -13,18 +13,14 @@ Object.defineProperty(Object.prototype, 'merge', {
     enumerable: false
 });
 
-function setScale ($block, scale) {
-    var style = $block.attr('style');
-    var transform = style.match(/transform/) ? style.match(/transform: ([^;]*);/)[1] : '';
-    var oldScale = transform.match(/rotate/) ? transform.match(/scale\((.+?)\)/)[1] : '';
-
-    $block.css('transform', transform.replace('scale(' + oldScale + 'deg)', 'scale(' + scale + 'deg)'));
+function setTransform (className, options={rotation: 0, scale: 1}) {
+    document.getElementsByClassName(className)[0].style.transform = `rotate(${options.rotation}deg) scale(${options.scale})`;
 }
 
-function setRotation ($block, rotation) {
-    var style = $block.attr('style');
-    var transform = style.match(/transform/) ? style.match(/transform: ([^;]*);/)[1] : '';
-    var oldRotation = transform.match(/rotate/) ? transform.match(/rotate\((.+?)deg\)/)[1] : '';
-
-    $block.css('transform', transform.replace('rotate(' + oldRotation + 'deg)', 'rotate(' + rotation + 'deg)'));
+function getTransform (className) {
+    var transform = document.getElementsByClassName(className)[0].style.transform;
+    return {rotation, scale} = {
+        rotation: parseInt(transform.match(/rotate/) ? transform.match(/rotate\((.+?)deg\)/)[1] : 0),
+        scale: parseFloat(transform.match(/scale/) ? transform.match(/scale\((.+?)\)/)[1] : 1)
+    };
 }

@@ -1,4 +1,4 @@
-var fs = require('fs');
+let fs = require('fs');
 
 window.onload = function () {
     const {remote} = require('electron');
@@ -13,68 +13,99 @@ window.onload = function () {
     initApp();
 };
 
+function initApp () {
+    setStudentsList();
+    initEventListeners();
+    setFont();
+
+    $(".inputWord").focus();
+}
+
+function setStudentsList (name) {
+    let $studentsList = $('.studentsList'),
+        currentStudent = name || $('.studentsList option:checked').val(),
+        currentWord = $('.highlightedWord').html();
+
+    $studentsList.html('');
+    storageManager.studentsList.forEach((student) => {
+        $studentsList.append(`<option ${(currentStudent == student) ? 'selected' : '' } data-student='${student}'>${student}</option>`);
+    });
+
+    setWordList(currentWord);
+}
+
+function setWordList (word) {
+    let $wordList = $('.wordList'),
+        currentStudent = $(".studentsList option:checked").val();
+
+    if (currentStudent) {
+        $wordList.html('');
+        let words = storageManager.getWords(currentStudent);
+        words.forEach((word, index) => {
+            $wordList.append(`<li class='word' id='word${index}' onclick='setWordImg($(this).html())'>${word}</li>`);
+        });
+
+        setWordImg((words.indexOf(word) != -1) ? word : $('.wordList li#word0').html());
+    }
+}
+
 function setWordImg (word) {
-    word = word || storageManager.getRandomWord();
+    stopWordSound();
+    stopEffects();
+    word = word || storageManager.getRandomWord($('.studentsList option:checked').val());
 
-    if (word) {
-        var imgPath = (storageManager.getRecord(word).path || "").replace(/\\/g, "/");
-        var imgScale = storageManager.getRecord(word).scale || 1;
-        var imgRotation = storageManager.getRecord(word).rotation || 0;
+    let imgPath = (storageManager.getRecord(word).path || "").replace(/\\/g, "/");
+    let imgScale = storageManager.getRecord(word).scale || 1;
+    let imgRotation = storageManager.getRecord(word).rotation || 0;
 
-        $(".imgArea").css({
-            "background": "url('" + imgPath + "') center center no-repeat",
-            "background-size": "contain"
-        });
+    $(".imgArea").css({
+        "background": "url('" + imgPath + "') center center no-repeat",
+        "background-size": "contain"
+    });
 
-        setTransform('imgArea', {rotation: imgRotation, scale: imgScale});
+    setTransform('imgArea', {rotation: imgRotation, scale: imgScale});
+
+    let scrollElem = document.getElementsByClassName('wordImgSizeBarWrapper')[0];
+    scrollElem.scrollLeft = $('.wordImgSizeBar').width() / 2;
 
 
-        $(".completeWord").html(word);
-        $(".inputWord").val('');
+    $(".completeWord").html(word);
+    $(".inputWord").val('');
+    if (! $('#placeholderBtn').hasClass('disabled')) {
         $(".inputWord").attr('placeholder', word);
-        $(".inputWord").focus();
-        $(".wordList > li").each(function () {
-            if ($(this).html() == word) {
-                $(this).addClass("highlightedWord");
-            } else {
-                $(this).removeClass("highlightedWord");
-            }
-        });
-
-        try {
-            if ($(".wordList > li").length) $(".wordList").scrollTo(".highlightedWord");
-        } catch (e) {
-            return e;
+    }
+    $(".inputWord").focus();
+    $(".wordList > li").each(function () {
+        if ($(this).html() == word) {
+            $(this).addClass("highlightedWord");
+        } else {
+            $(this).removeClass("highlightedWord");
         }
+    });
+
+    try {
+        if ($(".wordList > li").length) $(".wordList").scrollTo(".highlightedWord");
+    } catch (e) {
+        return e;
     }
 }
 
 function setNextWordImg () {
-    var $nextWord = $(".highlightedWord").next();
+    let $nextWord = $(".highlightedWord").next();
     $(".word").removeClass("highlightedWord");
-    stopEffects();
     setWordImg( (! $nextWord.length) ? $($(".word")[0]).html() : $nextWord.html() );
 }
 
 function setPreviousWordImg () {
-    var $prevWord = $(".highlightedWord").prev();
+    let $prevWord = $(".highlightedWord").prev();
     $(".word").removeClass("highlightedWord");
     setWordImg( (! $prevWord.length) ? $($(".word").last()).html() : $prevWord.html() );
 }
 
-function initWordList () {
-    var $wordList = $(".wordList"), i = 0;
-    $wordList.html("");
-    console.log(storageManager.dictionary);
-    for (var word in storageManager.dictionary) {
-        if (storageManager.dictionary.hasOwnProperty(word)) {
-            $wordList.append("<li class='word' id='word" + (i++) + "' onclick='setWordImg($(this).html())'>" + word.toString() + "</li>");
-        }
-    }
-    setWordImg();
-}
 
 function setWordPopup (word) {
+    stopWordSound();
+
     $(".uploadImgArea").css("background", "rgba(200, 200, 200, 0.8)");
     $(".uploadImgArea > span").show();
 
@@ -82,30 +113,34 @@ function setWordPopup (word) {
         popupData.word = word;
         popupData.img = storageManager.getRecord(word).path;
         $(".inputWordArea").val(word);
-        $('.wordPopup .label').html(storageManager.getRecord(word).audio.path.split('\\')[storageManager.getRecord(word).audio.path.split('\\').length - 1]);
+        $('.wordPopup .label').html(storageManager.getRecord(word).audio.path.split('\\')[storageManager.getRecord(word).audio.path.split('\\').length - 1] || 'Проигрывающийся звук');
 
-        var options = {
-            path: (storageManager.getRecord(word).path || '').replace(/\\/g, '/'),
-            rotation: storageManager.getRecord(word).rotation || 0,
-            scale: storageManager.getRecord(word).scale || 1
+        let path = (storageManager.getRecord(word).path || '').replace(/\\/g, '/');
+
+        let options = {
+            path: path,
+            rotation: path ? (storageManager.getRecord(word).rotation || 0) : 0,
+            scale: path ? (storageManager.getRecord(word).scale || 1) : 1
         };
 
-        setTransform('uploadImgArea', options);
 
-        var scrollElem = document.getElementsByClassName('imgSizeBarWrapper')[0];
-        scrollElem.scrollTop = (1 - storageManager.getRecord(word).scale || 1) * ($('.imgSizeBar').height() - $('.imgSizeBarWrapper').height());
+        if (options.path) {
+            $(".uploadImgArea").css("background",  "url('" + options.path + "') center center / contain no-repeat");
 
+            setTransform('uploadImgArea', options);
 
-        $(".uploadImgArea").css("background", "url('" + options.path + "') center center / contain no-repeat");
-
-        $(".uploadImgArea").addClass('loaded');
+            let scrollElem = document.getElementsByClassName('imgSizeBarWrapper')[0];
+            scrollElem.scrollLeft = (1 - storageManager.getRecord(word).scale || 1) * ($('.imgSizeBar').width() - $('.imgSizeBarWrapper').width());
+            $(".uploadImgArea").addClass('loaded');
+        }
 
     } else {
         popupData.word = null;
         popupData.img = null;
         $(".inputWordArea").val("");
         setTransform('uploadImgArea');
-        document.getElementsByClassName('imgSizeBarWrapper')[0].scrollTop = 0;
+        document.getElementsByClassName('imgSizeBarWrapper')[0].scrollLeft = 0;
+        $('.wordPopup .label').html('Проигрывающийся звук');
     }
 
     $(".wordPopupWrapper").addClass('open');
@@ -115,50 +150,69 @@ function setWordPopup (word) {
     $(".inputWordArea").focus();
 }
 
+function setSoundPopup () {
+    stopWordSound();
+    $(".soundPopupWrapper").fadeIn(500);
+    $(".inputWordArea").focus();
+    $(".soundPopupWrapper").addClass('open');
+}
+
 function setFontPopup () {
-    currentFontOptions = storageManager.getConfig('font', 'main');
+    stopWordSound();
+    $('.fontName, .fontSize, .fontStyle').html('');
+    window.currentFont = storageManager.getConfig('font', 'main');
+
+    let detector = new Detector();
+    storageManager.data.fonts.names.forEach((font) => {
+        if (detector.detect(font)) {
+            $('.fontName').append(`<option ${currentFont.name == font ? 'selected' : ''} style='font-family:${font}'>${font}</option>`);
+        }
+    });
+
+    storageManager.data.fonts.styles.forEach((style) => {
+        $('.fontStyle').append(`<option ${currentFont.style == style ? 'selected' : ''} style='font-style:${style}'>${style}</option>`);
+    });
+
+    storageManager.data.fonts.sizes.forEach((size) => {
+        $('.fontSize').append(`<option ${currentFont.size == size + 'px' ? 'selected' : ''} style='font-size:${size}px'>${size}</option>`);
+    });
+
     $(".fontPopupWrapper").fadeIn(500);
+    $(".fontPopupWrapper").addClass('open');
     $(".inputWordArea").focus();
 }
 
 function setFont () {
     try {
         $('body style').remove();
-        var font = storageManager.getConfig('font', 'main');
-        $('.fontBox .label').html(font.name);
+        let font = storageManager.getConfig('font', 'main');
         $('body').append(`
             <style>
-                @font-face {
-                    font-family: '${font.name}';
-                    src: url('${font.path.replace(/\\/g, '/')}');
-                }
                 .main,
                 .wordPopupWrapper,
                 .soundPopupWrapper,
                 .fontPopupWrapper,
                 .uploadImgArea,
                 .inputWordArea {
-                    font-family: '${font.name}';
+                    font-family: ${font.name};
+                    font-style: ${font.style};
+                    font-size: ${font.size}
                 }
             </style>
         `);
     } catch (e) {}
 }
 
-function setSoundPopup () {
-    $(".soundPopupWrapper").fadeIn(500);
-    $(".inputWordArea").focus();
-}
-
 function startEffect (type) {
-    var options = storageManager.getConfig('audio', type);
+    stopWordSound();
+    let options = storageManager.getConfig('audio', type);
     $(".main").addClass("main" + type.capitalizeFirstLetter() + "Input");
 
     player.play(options.path, options.duration, function () {
-        stopEffect(type);
-        if (type == 'win') {
+        if (type == 'win' && $('.main').hasClass("main" + type.capitalizeFirstLetter() + "Input")) {
             setNextWordImg();
         }
+        stopEffect(type);
     });
 }
 
@@ -172,41 +226,45 @@ function stopEffects () {
     stopEffect('win');
 }
 
+function stopWordSound () {
+    $('#listenBtn').removeClass('playing');
+    player.reset();
+}
+
 function onInput (type) {
+    stopWordSound();
     stopEffects();
     startEffect(type);
 }
 
 function initEventListeners () {
-    var timer = setInterval(() => {
+    let timer = setInterval(() => {
         if ($(".highlightedWord").html()) {
-            var highlightedWord = $(".highlightedWord").html().toLowerCase(),
+            let highlightedWord = $(".highlightedWord").html().toLowerCase(),
                 potentialWord = $(".inputWord").val();
         }
     }, 50);
 
     $(document).keydown(function(event) {
-        if ([39, 40].indexOf(event.keyCode) != -1) setNextWordImg(); // right down
-        else if ([37, 38].indexOf(event.keyCode) != -1) setPreviousWordImg(); // left up
-        else if ([46].indexOf(event.keyCode) != -1) $("#deleteBtn").click(); // delete
+        if ([46].indexOf(event.keyCode) != -1) $("#deleteBtn").click(); // delete
         else if ([13].indexOf(event.keyCode) != -1) { // enter
             event.stopPropagation();
             event.preventDefault();
-            if ($(".soundPopupWrapper").css('display') != 'none') {
+            if ($(".soundPopupWrapper").hasClass('open')) {
                 $("#soundPopupSaveBtn").click();
-            } else if ($(".wordPopupWrapper").css('display') != 'none') {
+            } else if ($(".wordPopupWrapper").hasClass('open')) {
                 $("#wordPopupSaveBtn").click();
-            } else if ($(".fontPopupWrapper").css('display') != 'none') {
+            } else if ($(".fontPopupWrapper").hasClass('open')) {
                 $("#fontPopupSaveBtn").click();
             }
         } else if ([27].indexOf(event.keyCode) != -1) { // escape
             event.stopPropagation();
             event.preventDefault();
-            if ($(".soundPopupWrapper").css('display') != 'none') {
+            if ($(".soundPopupWrapper").hasClass('open')) {
                 $("#soundPopupCloseBtn").click();
-            } else if ($(".wordPopupWrapper").css('display') != 'none') {
+            } else if ($(".wordPopupWrapper").hasClass('open')) {
                 $("#wordPopupCloseBtn").click();
-            } else if ($(".fontPopupWrapper").css('display') != 'none') {
+            } else if ($(".fontPopupWrapper").hasClass('open')) {
                 $("#fontPopupCloseBtn").click();
             }
         }
@@ -219,7 +277,7 @@ function initEventListeners () {
             event.stopPropagation();
         } else {
 
-            var highlightedWord = $(".highlightedWord").html().toLowerCase(),
+            let highlightedWord = $(".highlightedWord").html().toLowerCase(),
                 potentialWord = ($(".inputWord").val() + String.fromCharCode(event.keyCode)).toString().toLowerCase();
 
             if (highlightedWord.indexOf(potentialWord) == 0) {
@@ -244,44 +302,146 @@ function initEventListeners () {
         return false;
     });
 
+    $('#addStudentBtn').click(() => {
+        vex.dialog.open({
+            message: 'Имя нового ученика:',
+            input: [
+                '<input name="studentName" type="text" placeholder="Имя" required />'
+            ].join(''),
+            buttons: [
+                $.extend({}, vex.dialog.buttons.YES, { text: 'Сохранить' }),
+                $.extend({}, vex.dialog.buttons.NO, { text: 'Отмена' })
+            ],
+            callback: function (data) {
+                if (data) {
+                    storageManager.addStudent(data.studentName);
+                    setStudentsList();
+                    $(`.studentsList option[data-student='${data.studentName}']`).prop('selected', true);
+                    setStudentsList();
+                }
+            }
+        });
+    });
+    $('#editStudentBtn').click(() => {
+        let currentName = $('.studentsList option:checked').val();
+        if (currentName) {
+            vex.dialog.open({
+                message: `Новое имя ученика ${currentName}:`,
+                input: [
+                    '<input name="studentName" type="text" placeholder="Имя" required />'
+                ].join(''),
+                buttons: [
+                    $.extend({}, vex.dialog.buttons.YES, { text: 'Сохранить' }),
+                    $.extend({}, vex.dialog.buttons.NO, { text: 'Отмена' })
+                ],
+                callback: function (data) {
+                    if (data) {
+                        storageManager.editStudent(currentName, data.studentName);
+                        setStudentsList(data.studentName);
+                    }
+                }
+            });
+        }
+
+    });
+    $('#removeStudentBtn').click(() => {
+        let currentName = $('.studentsList option:checked').val();
+        if (currentName) {
+            vex.dialog.open({
+                message: `Вы уверены что хотите удалить ученика '${currentName}' ? (Будут стерты также все его слова)`,
+                buttons: [
+                    $.extend({}, vex.dialog.buttons.YES, { text: 'Удалить' }),
+                    $.extend({}, vex.dialog.buttons.NO, { text: 'Отмена' })
+                ],
+                callback: function (data) {
+                    if (data) {
+                        storageManager.removeStudent(currentName);
+                        setStudentsList();
+                    } else {
+
+                    }
+                }
+            });
+        }
+
+        storageManager.removeStudent($('.studentsList option:checked'));
+        setStudentsList();
+    });
+
+    $('.studentsList').change(() => {
+        stopEffects();
+        $('.completeWord').html('');
+        $('.inputWord').attr('placeholder', '');
+        setWordList();
+    });
+
     $(".word").click(function () {
         setWordImg($(this).html());
         $(".inputWord").focus();
     });
 
     $(".word").dblclick(function (event) {
-        event.stopPropagation();
-        event.preventDefault();
-        setWordPopup($(this).html());
+        if ($('.studentsList option:checked').val()) {
+            event.stopPropagation();
+            event.preventDefault();
+            setWordPopup($(this).html());
+        }
     });
 
-    $('#listenBtn').click(() => {
-        if (player.isPlaying()) {
+    $('.wordImgSizeBarWrapper').scroll(function () {
+        let scale = getScrollScale($('.wordImgSizeBarWrapper'), $('.wordImgSizeBar'));
+        let rotation = getTransform('imgArea').rotation;
+        setTransform('imgArea', {rotation: rotation, scale: (1 - scale)});
+        $('.completeWord').css('font-size', Math.max(parseFloat($('.completeWord').css('font-size')), 100) * scale + 'px');
+    });
+
+
+    $('#listenBtn').click(function () {
+        if ($(this).hasClass('playing')) {
             player.pause();
+            $(this).removeClass('playing')
         } else if ($(".highlightedWord").html()) {
-            var path = storageManager.getRecord($(".highlightedWord").html()).audio.path;
+            let path = storageManager.getRecord($(".highlightedWord").html()).audio.path;
             if (path) {
                 player.play(path);
+                $(this).addClass('playing');
             }
         }
     });
 
+    $('#placeholderBtn').click(function () {
+        if ($(this).hasClass('disabled')) {
+            $('.inputWord').attr('placeholder', $('.highlightedWord').html());
+            $('#placeholderBtn').removeClass('disabled');
+        } else {
+            $('.inputWord').removeAttr('placeholder');
+            $('#placeholderBtn').addClass('disabled');
+        }
+    });
+
     $("#newBtn").click(function () {
-        setWordPopup();
+        if ($('.studentsList option:checked').val()) {
+            setWordPopup();
+        }
     });
 
     $("#editBtn").click(function () {
-        setWordPopup($(".highlightedWord").text());
+        if ($('.studentsList option:checked').val()) {
+            setWordPopup($(".highlightedWord").text());
+        }
     });
 
     $("#deleteBtn").click(function () {
-        storageManager.removeRecord($(".highlightedWord").html());
-        $('.imgArea').css('background', 'none');
-        $('.completeWord').html('');
-        player.reset();
-        $(".inputWord").attr('placeholder', '');
-        initWordList();
-        $(".inputWord").focus();
+        if ($('.studentsList option:checked').val()) {
+            stopWordSound();
+            storageManager.removeRecord($(".highlightedWord").html());
+            $('.imgArea').css('background', 'none');
+            $('.completeWord').html('');
+            player.reset();
+            $(".inputWord").attr('placeholder', '');
+            setWordList();
+            $(".inputWord").focus();
+        }
     });
 
     $("#soundBtn").click(function () {
@@ -293,27 +453,4 @@ function initEventListeners () {
         setFontPopup();
         $(".inputWord").focus();
     });
-}
-
-function initApp () {
-    initWordList();
-    initEventListeners();
-    setFont();
-
-    // $(".uploadImgArea").mCustomScrollbar({
-    //     theme: 'dark',
-    //     axis: 'y',
-    //     scrollbarPosition: 'inside',
-    //     alwaysShowScrollbar: 2,
-    //     snapAmount: 10,
-    //     snapOffset: 5,
-    //     mouseWheel: {
-    //         enable: true
-    //     },
-    //     advanced: {
-    //         updateOnContentResize: true
-    //     }
-    // });
-
-    $(".inputWord").focus();
 }

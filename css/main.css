@@ -1,3 +1,13 @@
+/* rewrite */
+.vex.vex-theme-os .vex-dialog-button.vex-dialog-button-primary {
+    background: rgba(102, 255, 204, 0.8);
+    color: black;
+}
+
+/* rewrite END */
+
+
+
 .main {
     position: absolute;
     top: 0;
@@ -5,7 +15,7 @@
     width: 100%;
     height: 100%;
 
-    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-family: "Comic Sans MS";
 }
 
 .leftArea,
@@ -16,9 +26,65 @@
     min-width: 20px;
 }
 
+.studentBlock {
+    position: relative;
+    width: 95%;
+    height: 100px;
+    padding: 5%;
+}
+
+.studentBtnBlock{
+    position: relative;
+    width: 100%;
+    height: 70px;
+}
+
+.studentBtn {
+    position: relative;
+    top: 10px;
+    height: 50px;
+    width: 50px;
+    cursor: pointer;
+    display: inline-block;
+    transition: opacity 0.25s ease-out;
+}
+
+#addStudentBtn {
+    background: url(../img/addStudent.png) no-repeat;
+    background-size: contain;
+}
+#editStudentBtn,
+#removeStudentBtn {
+    margin-left: 20px;
+}
+
+#editStudentBtn {
+    background: url(../img/editStudent.ico) no-repeat;
+    background-size: contain;
+}
+
+#removeStudentBtn {
+    background: url(../img/removeStudent.png) no-repeat;
+    background-size: contain;
+}
+
+.studentsList {
+    position: relative;
+    top: 10px;
+    width: 100%;
+    padding: 2px;
+    font-size: 20px;
+    text-align: center;
+}
+
+.studentList option{}
+.studentList option:checked {}
+
+
 .wordList {
     position: relative;
     float: left;
+    top: 20px;
     left: 5%;
     max-height: 660px;
     padding: 10px 0;
@@ -56,7 +122,6 @@
 .completeWord {
     position: relative;
     height: 25%;
-    margin-top: 10%;
     min-height: 20%;
     width: 100%;
     font-size: 8em;
@@ -73,8 +138,7 @@
 .wordArea{
     position: relative;
     height: 10%;
-    float: left;
-    width: 85%;
+    width: 100%;
     border-radius: 5%;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
@@ -94,7 +158,6 @@
     top: 20px;
     height: 50px;
     width: 10%;
-    margin-left: 5%;
     float: left;
     cursor: pointer;
     background: url(../img/soundBtn.png) no-repeat;
@@ -102,6 +165,27 @@
     transition: opacity 0.25s ease-out;
 }
 
+#listenBtn.playing {
+    background: url(../img/soundPauseBtn.png) no-repeat;
+    background-size: contain;
+}
+
+#placeholderBtn {
+    position: relative;
+    top: 20px;
+    height: 50px;
+    width: 10%;
+    margin-left: 5%;
+    font-size: 2em;
+    float: left;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.25s ease-out;
+ }
+
+#placeholderBtn.disabled {
+    text-decoration: line-through;
+}
 
 .btnArea {
     position: relative;
@@ -218,7 +302,7 @@
 .wordPopup{
     position: relative;
     margin: 0 auto;
-    height: 700px;
+    height: 740px;
     width: 700px;
     padding-top: 10px;
     padding-left: 10px;
@@ -233,7 +317,7 @@
     top: 20%;
     margin: 0 auto;
     height: 255px;
-    width: 900px;
+    width: 690px;
     padding-top: 30px;
     padding-left: 10px;
     padding-right: 10px;
@@ -253,11 +337,17 @@
 }
 
 .fontPopup {
-    height: 90px;
+    height: 100px;
 }
 
 .fontPopup .label {
     width: 420px;
+}
+
+.fontPopup .popupBtn {
+    top: 10px;
+    left: -8px;
+    float: left;
 }
 
 .fontPath {
@@ -267,15 +357,16 @@
     width: 450px;
 }
 
-#soundPopupResetBtn,
-#fontPopupResetBtn {
+#soundPopupResetBtn {
     position: absolute;
 }
 
-#soundPopupCancelBtn,
-#fontPopupCancelBtn {
+
+#soundPopupCancelBtn{
     float: right;
 }
+
+
 
 .soundBox {
     margin: 20px 0;
@@ -283,8 +374,17 @@
     height: 50px;
 }
 
-.fontBox {
+.fontName,
+.fontStyle,
+.fontSize {
     height: 50px;
+    font-size: 20px;
+    width: 220px;
+}
+
+.fontStyle,
+.fontSize {
+    margin-left: 8px;
 }
 
 #win {
@@ -320,9 +420,15 @@
 }
 
 .playBtn:active,
+.studentBtn:active,
 #removeWordSignalBtn:active,
 #listenBtn:active {
     opacity: 0;
+}
+
+.playBtn.playing {
+    background: url(../img/pauseMusicBtn.png) no-repeat;
+    background-size: contain;
 }
 
 #removeWordSignalBtn {
@@ -366,18 +472,42 @@
 .rotated180 {transform: rotate(180deg);}
 .rotated270 {transform: rotate(270deg);}
 
-.imgSizeBarWrapper {
+.sizeBarDescription {
+    position: relative;
+    margin: 0 auto;
+    width: 300px;
+    text-align: center;
+}
+
+.sizeBarDescription span {
     position: absolute;
-    top: 40px;
-    right: 10px;
-    width: 15px;
-    height: 500px;
+    padding-left: 10px;
+}
+
+.imgSizeBarWrapper {
+    position: relative;
+    margin: 0 auto;
+    margin-top: 10px;
+    height: 18px;
     cursor: pointer;
-    overflow-y: auto;
+    overflow-x: scroll;
 }
 
 .imgSizeBar {
-    height: 1000%;
+    width: 1000%;
+    height: 10px;
+}
+
+.wordImgSizeBarWrapper {
+    position: relative;
+    height: 10%;
+    cursor: pointer;
+    overflow-x: scroll;
+}
+
+.wordImgSizeBar {
+    width: 1000%;
+    height: 100%;
 }
 
 .inputWordArea{
@@ -417,11 +547,11 @@
 .wordPopup .label {
     position: relative;
     top: 5px;
-    width: 189px;
+    width: 240px;
     overflow: hidden;
     white-space: nowrap;
     margin-left: 20px;
-    margin-right: 62px;
+    margin-right: 6px;
     display: inline-block;
 }
 

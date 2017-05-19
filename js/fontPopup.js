@@ -1,13 +1,10 @@
-var currentFontOptions,
-    currentSoundPath;
-
 $(document).ready(function () {
-    $('.fontPath').change(function (event) {
-        var file = document.getElementsByClassName('fontPath')[0].files[0];
-        onFileChanged(file);
-    });
-
     $("#fontPopupSaveBtn").click(function (event) {
+        storageManager.setConfig('font', 'main', {
+            name: $('.fontName option:checked').val(),
+            style: $('.fontStyle option:checked').val(),
+            size: $('.fontSize option:checked').val() + 'px'
+        });
         onCloseFontPopup();
         event.stopPropagation();
         event.preventDefault();
@@ -16,8 +13,6 @@ $(document).ready(function () {
     $("#fontPopupResetBtn").click(function (event) {
         if (confirm('Вы точно хотите сбросить настройки шрифта ?')) {
             storageManager.resetConfigItem('font');
-            $('.fontBox .label').html(storageManager.getConfig('font', 'main').name);
-            setFont();
             onCloseFontPopup();
         }
     });
@@ -26,25 +21,17 @@ $(document).ready(function () {
         if ($('.fontPath').hasClass('changed') && confirm('Сохранить изменения ?')) {
             $("#fontPopupSaveBtn").click();
         } else {
-            storageManager.setConfig('font', 'main', currentFontOptions);
+            storageManager.setConfig('font', 'main', currentFont);
         }
         onCloseFontPopup();
     });
-
-    function onFileChanged (file) {
-        storageManager.setConfig('font', 'main', {
-            name: file.name,
-            path: file.path
-        });
-        setFont();
-        $('.fontPath').addClass('changed');
-    }
 
     function onCloseFontPopup() {
         setFont();
         $('.fontPath').removeClass('changed');
 
         $(".fontPopupWrapper").fadeOut(500, function () {
+            $(this).removeClass('open');
             $(".inputWord").focus();
         });
     };

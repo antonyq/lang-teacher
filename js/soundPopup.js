@@ -1,20 +1,29 @@
+function onSoundPopupFileChaged () {
+    $('.soundPopup .playBtn').removeClass('playing');
+}
+
 $(document).ready(function () {
     $('.soundPopup .playBtn').click(function () {
-        if (player.isPlaying()) {
+        if ($(this).hasClass('playing')) {
             player.pause();
+            $(this).removeClass('playing');
         } else {
-            var type = $(this).attr('id').match(/(?:correct|wrong|win)/i)[0].toLowerCase();
+            let type = $(this).attr('id').match(/(?:correct|wrong|win)/i)[0].toLowerCase();
                 if (document.getElementById(type + "SoundPath").files[0]  && document.getElementById(`${type}SoundDuration`).value) {
-                    var path = document.getElementById(type + "SoundPath").files[0].path,
+                    let path = document.getElementById(type + "SoundPath").files[0].path,
                         duration = document.getElementById(`${type}SoundDuration`).value;
-                    player.play(path, duration);
+                    player.play(path, duration, function () {
+                        $('.soundPopup .playBtn').removeClass('playing');
+                    });
+                    $('.soundPopup .playBtn').removeClass('playing');
+                    $(this).addClass('playing');
                 }
         }
     });
 
     $("#soundPopupSaveBtn").click(function (event) {
         $('.soundPopup input[type="file"]').each((index, fileInput) => {
-            var id = $(fileInput).attr('id'),
+            let id = $(fileInput).attr('id'),
                 type = id.match(/(?:correct|wrong|win)/i)[0].toLowerCase();
 
             storageManager.setConfig('audio', type, {
@@ -56,6 +65,8 @@ $(document).ready(function () {
         player.pause();
 
         $(".soundPopupWrapper").fadeOut(500, function () {
+            $(this).removeClass('open');
+            $('.soundPopup .playBtn').removeClass('playing');
             $('#winSoundPath, #winSoundDuration, #correctSoundPath, #correctSoundDuration, #wrongSoundPath, #wrongSoundDuration').removeClass('changed');
             $('.soundPopup input[type="number"]').val('1');
             $('.soundPopup input[type="file"]').val('');

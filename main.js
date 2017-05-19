@@ -10,10 +10,9 @@ app.on('ready', function() {
   mainWindow = new BrowserWindow({
       minWidth: 1100,
       width: 1200,
-    //   maxWidth: 1300,
-      minHeight: 800,
-      height: 810,
-    //   maxHeight: 900
+      // maxWidth: 1300,
+      minHeight: 950,
+      height: 950
   });
 
   mainWindow.loadURL('file://' + __dirname + '/index.html');

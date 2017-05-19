@@ -2,23 +2,37 @@ var imgPath = {blob: null, real: null};
 var popupData = {word: null, img: null};
 
 function onWordSoundChange () {
+    $('.wordPopup .playBtn').removeClass('playing');
     if (document.getElementById('wordSoundPath').files[0]) {
-        var name = document.getElementById('wordSoundPath').files[0].name;
+        let name = document.getElementById('wordSoundPath').files[0].name;
         $('.wordPopup .label').html(name);
     } else {
-        $('.wordPopup .label').html('');
+        player.reset();
+        $('.wordPopup .label').html('Проигрывающийся звук');
+    }
+}
+
+function updateScrollScale (scale) {
+    console.log(scale);
+    $('.sizeBarDescription span').remove();
+    $('.sizeBarDescription').html(scale ? 'Видимый размер изображения: ' : 'Невидимо');
+    if (scale) {
+        $('.sizeBarDescription').append(`<span>${parseInt(scale * 100) +'%'}</span>`);
     }
 }
 
 $(document).ready(function () {
+    $('.wordPopup .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
 
     $('.imgSizeBarWrapper').scroll(function () {
-        var scale = 1 - $(this).scrollTop() / ($('.imgSizeBar').height() - $(this).height());
-        var rotation = getTransform('uploadImgArea').rotation;
-        setTransform('uploadImgArea', {rotation: rotation, scale: scale});
+        if ($('.uploadImgArea').hasClass('loaded')) {
+            let scale = getScrollScale($('.imgSizeBarWrapper'), $('.imgSizeBar'));
+            let rotation = getTransform('uploadImgArea').rotation;
+            setTransform('uploadImgArea', {rotation: rotation, scale: scale});
+            updateScrollScale(scale);
+        }
     });
 
-    $('.wordPopup .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
 
     $(".inputWordArea").on('input', function () {
         $(".inputWordArea").addClass('changed');
@@ -35,7 +49,7 @@ $(document).ready(function () {
         event.stopPropagation();
 
         try {
-            var file = event.originalEvent.dataTransfer.files[0];
+            let file = event.originalEvent.dataTransfer.files[0];
             onFileChanged(file);
         } catch(e) {
             alert('Произошла ошибка ' + e + '. Перезапустите программу.');
@@ -45,11 +59,12 @@ $(document).ready(function () {
     $("#wordPopupSaveBtn").click(function (event) {
         if ($(".inputWordArea").val() != "") {
             if ($(".inputWordArea").val() != popupData.word) {
-                imgPath.real = imgPath.real || storageManager.getRecord(popupData.word).imgPath;
+                imgPath.real = imgPath.real || storageManager.getRecord(popupData.word).path;
                 storageManager.removeRecord(popupData.word);
             }
 
-            var result = storageManager.setRecord($(".inputWordArea").val(), {
+            let result = storageManager.setRecord($(".inputWordArea").val(), {
+                student: $('.studentsList option:checked').val(),
                 path: imgPath.real || popupData.img,
                 rotation: getTransform('uploadImgArea').rotation,
                 scale: getTransform('uploadImgArea').scale,
@@ -58,7 +73,7 @@ $(document).ready(function () {
                 }
             });
             if (result == undefined) {
-                initWordList();
+                setWordList($(".inputWordArea").val());
                 onCloseWordPopup();
             } else alert("Введите слово");
         } else alert("Введите слово");
@@ -70,7 +85,7 @@ $(document).ready(function () {
         if ($('.uploadImgArea').hasClass('loaded')) {
             $(".uploadImgArea").addClass('changed');
 
-            var transform = getTransform('uploadImgArea');
+            let transform = getTransform('uploadImgArea');
             setTransform('uploadImgArea', {rotation: transform.rotation + 90, scale: transform.scale});
         }
     });
@@ -87,7 +102,7 @@ $(document).ready(function () {
 
 
         $('.wordPopupImgInput').change(function (event) {
-            var file = document.getElementsByClassName('wordPopupImgInput')[0].files[0];
+            let file = document.getElementsByClassName('wordPopupImgInput')[0].files[0];
             onFileChanged(file);
         });
     });
@@ -100,18 +115,18 @@ $(document).ready(function () {
             popupData.img = null;
 
             $(".uploadImgArea").removeAttr('style');
+            setTransform('uploadImgArea');
+            document.getElementsByClassName('imgSizeBarWrapper')[0].scrollLeft = 0;
             $(".uploadImgArea").removeClass('loaded');
         }
     });
 
     $('#removeWordSignalBtn').click(function () {
-        var word = $('.inputWordArea').val();
-        if (word && storageManager.hasRecord(word)) {
-            $('.wordPopup .label').html('Проигрывающийся звук');
-            $('#wordSoundPath').remove();
-            $('.wordPopup .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
-            player.reset();
-        }
+        $('.wordPopup .playBtn').removeClass('playing');
+        $('.wordPopup .label').html('Проигрывающийся звук');
+        $('#wordSoundPath').remove();
+        $('.wordPopup .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
+        player.reset();
     });
 
     $("#wordPopupCloseBtn, #wordPopupCancelBtn").click(function () {
@@ -123,10 +138,15 @@ $(document).ready(function () {
     });
 
     $('.wordPopup .playBtn').click(function () {
-        if (player.isPlaying()) {
+        if ($('.playBtn').hasClass('playing')) {
             player.pause();
+            $('.playBtn').removeClass('playing');
         } else if (document.getElementById('wordSoundPath').files[0]) {
             player.play(document.getElementById('wordSoundPath').files[0].path);
+            $('.playBtn').addClass('playing');
+        } else if ($('.wordPopup .label').html() != 'Проигрывающийся звук' && storageManager.hasRecord(popupData.word)) {
+            player.play(storageManager.getRecord(popupData.word).audio.path);
+            $('.playBtn').addClass('playing');
         }
     });
 
@@ -135,7 +155,7 @@ $(document).ready(function () {
             $(".uploadImgArea").css('transform', 'none');
             $(".uploadImgArea").addClass('changed');
 
-            var URL = window.URL || window.webkitURL;
+            let URL = window.URL || window.webkitURL;
             imgPath.blob = URL.createObjectURL(file);
             imgPath.real = file.path;
 
@@ -145,7 +165,7 @@ $(document).ready(function () {
             });
 
             setTransform('uploadImgArea');
-            document.getElementsByClassName('imgSizeBarWrapper')[0].scrollTop = 0;
+            document.getElementsByClassName('imgSizeBarWrapper')[0].scrollLeft = 0;
 
             $(".uploadImgArea").addClass('loaded');
         } else alert("Поддерживаются только JPG, PNG или GIF");
@@ -164,8 +184,9 @@ $(document).ready(function () {
         document.getElementsByClassName('imgSizeBarWrapper')[0].scrollTop = 0;
         $(".uploadImgArea").removeClass('loaded changed');
         $(".inputWordArea").removeClass('changed');
-        setWordImg($('highlightedWord').html());
         $(".inputWord").focus();
+        player.pause();
+        $('.wordPopup .playBtn').removeClass('playing');
     };
 
 });

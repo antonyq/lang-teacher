@@ -4,14 +4,24 @@
     <meta charset="UTF-8">
     <title>Language Teacher</title>
 
+    <!-- LIBS connection -->
+    <link rel="stylesheet" href="css/libs/vex.css" />
+    <link rel="stylesheet" href="css/libs/vex-theme-os.css" />
+    <!-- LIBS connection END -->
+
     <link rel="stylesheet" type="text/css" href="css/main.css">
+
 
     <!-- LIBS connection -->
     <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
     <script src="js/libs/jquery-3.1.1.min.js"></script>
     <script src="js/libs/jquery.scrollTo.min.js"></script>
     <script src="js/libs/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="js/libs/vex.combined.min.js"></script>
+    <script>vex.defaultOptions.className = 'vex-theme-os'</script>
     <script>if (window.module) module = window.module;</script>
+
+    <script src="js/libs/fontDetect.js"></script>
     <!-- LIBS connection END -->
 
     <script src="js/extension.js"></script>
@@ -26,16 +36,26 @@
 <body>
     <div class="main">
         <div class="leftArea">
+            <div class="studentBlock">
+                <div class="studentBtnBlock">
+                    <div class="studentBtn" id="addStudentBtn" title="Добавить ученика"></div>
+                    <div class="studentBtn" id="editStudentBtn" title="Изменить ученика"></div>
+                    <div class="studentBtn" id="removeStudentBtn" title="Удалить ученика"></div>
+                </div>
+                <select class="studentsList"></select>
+            </div>
             <ul class="wordList"></ul>
         </div>
 
         <div class="content">
             <div class="imgArea"></div>
+            <div class="wordImgSizeBarWrapper"><div class="wordImgSizeBar"></div></div>
             <div class="completeWord"></div>
             <div class="wordArea">
                 <input type="text" class="inputWord">
             </div>
             <div id="listenBtn"></div>
+            <div id="placeholderBtn" title="Подсвечивает слово в поле ввода">Подсказка</div>
         </div>
         <div class="rightArea">
             <div class="btnArea">
@@ -54,6 +74,7 @@
             <div class='uploadImgArea'>
                 <span>Перетащите картинку сюда</span>
             </div>
+            <div class="sizeBarDescription">Видимый размер изображения</div>
             <div class="imgSizeBarWrapper"><div class="imgSizeBar"></div></div>
             <div class="imgBtn" id="wordPopupDownloadImgBtn" title="Загрузить картинку"></div>
             <input class="wordPopupImgInput" type="file" />
@@ -77,21 +98,21 @@
             <div class="soundBox win" id="win">
                 <div class="playBtn" id="playWinSignalBtn"></div>
                 <div class="label">правильное слово</div>
-                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="winSoundPath" />
+                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="winSoundPath" onchange="onSoundPopupFileChanged()" />
                 <div class="label">время проигрывания (сек.)</div>
                 <input type="number" min="1" value="1" id="winSoundDuration" />
             </div>
             <div class="soundBox" id="correct">
                 <div class="playBtn" id="playCorrectSignalBtn"></div>
-                <div class="label">парвильная буква</div>
-                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="correctSoundPath" />
+                <div class="label">правильная буква</div>
+                <input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="correctSoundPath" onchange="onSoundPopupFileChanged()" />
                 <div class="label">время проигрывания (сек.)</div>
                 <input type="number" min="1" value="1" id="correctSoundDuration" />
             </div>
             <div class="soundBox" id="wrong">
                 <div class="playBtn" id="playWrongSignalBtn"></div>
                 <div class="label">неправильная буква</div>
-                <input type="file" accept="audio/ttf, audio/otf" class="soundPath" id="wrongSoundPath" />
+                <input type="file" accept="audio/ttf, audio/otf" class="soundPath" id="wrongSoundPath" onchange="onSoundPopupFileChanged()" />
                 <div class="label">время проигрывания (сек.)</div>
                 <input type="number" min="1" value="1" id="wrongSoundDuration" />
             </div>
@@ -104,13 +125,13 @@
     <div class="fontPopupWrapper">
         <div class="fontPopup">
             <div class="closeBtn" id="fontPopupCloseBtn"></div>
-            <div class="fontBox">
-                <div class="label"></div>
-                <input type="file" accept="font/ttf, font/otf, font/woff" class="fontPath" id="fontPath" />
-            </div>
-            <div class="popupBtn" id="fontPopupSaveBtn"><span>Сохранить</span></div>
-            <div class="popupBtn" id="fontPopupCancelBtn"><span>Отмена</span></div>
+            <select class="fontName"></select>
+            <select class="fontStyle"></select>
+            <select class="fontSize"></select>
+            <br>
             <div class="popupBtn" id="fontPopupResetBtn"><span>Стандартный</span></div>
+            <div class="popupBtn" id="fontPopupCancelBtn"><span>Отмена</span></div>
+            <div class="popupBtn" id="fontPopupSaveBtn"><span>Сохранить</span></div>
         </div>
     </div>
 </body>

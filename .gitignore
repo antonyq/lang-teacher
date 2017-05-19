@@ -1,4 +1,5 @@
+.svn
 .idea
 node_modules
 dist
-.svn
+doc

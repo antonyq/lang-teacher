@@ -38,12 +38,12 @@ class Player {
 
     }
 
-    reset () {
-        document.getElementById(this.id).src = '';
-    }
-
     isPlaying () {
         return !document.getElementById(this.id).paused;
+    }
+
+    reset () {
+        document.getElementById(this.id).src = '';
     }
 
     pause () {

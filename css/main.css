@@ -23,7 +23,7 @@
     position: relative;
     float: left;
     width: 20%;
-    height: 94%;
+    height: 96%;
     padding: 1%;
 }
 
@@ -126,57 +126,57 @@
 .content {
     position: relative;
     float: left;
-    max-height: 95%;
-    height: 97%;
+    height: 96%;
     width: 50%;
     padding: 1%;
 }
 
 .completeWord {
     position: relative;
-    height: 20%;
-    min-height: 175px;
     width: 100%;
     font-size: 7em;
     overflow: scroll;
     text-align: center;
 }
 
+.imgAreaWrapper {
+    position: relative;
+    height: 70%;
+    width: 100%;
+}
+
 .imgArea{
     border-radius: 20px;
-    height: 50%;
-    width: 40%;
+    height: 100%;
+     width: 100%;
     margin: 0 auto;
 }
 
 .wordArea{
-    position: relative;
-    height: 10%;
-    width: 100%;
-    border-radius: 5%;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    position: fixed;
+    bottom: 2%;
+    width: 50%;
+    display: table;
 }
 
 .inputWord{
     position: relative;
     height: 100%;
-    width: 100%;
-    font-size: 4em;
+    width: 85%;
+    font-size: 3em;
     text-align: center;
-    border: transparent;
-    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1) inset;
 }
 
 #listenBtn {
     position: relative;
-    top: 1%;
-    height: 50px;
-    width: 10%;
-    float: left;
+    width: 18%;
     cursor: pointer;
     background: url(../img/soundBtn.png) no-repeat;
     background-size: contain;
     transition: opacity 0.25s ease-out;
+    display: table-cell;
+    vertical-align: middle;
 }
 
 #listenBtn.playing {
@@ -186,13 +186,13 @@
 
 #placeholderBtn {
     position: relative;
-    top: 1%;
     height: 50px;
+    left: -5%;
     width: 15%;
-    margin-left: 31%;
     font-size: 2em;
-    float: left;
     cursor: pointer;
+    display: table-cell;
+    vertical-align: middle;
     user-select: none;
     transition: opacity 0.25s ease-out;
  }
@@ -342,7 +342,7 @@
     margin: 0 auto;
     height: 540px;
     width: 1000px;
-    padding: 10px;
+    padding: 20px 10px 10px 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     background: white;
 }
@@ -599,8 +599,13 @@
 }
 
 .wordImgSizeBarWrapper {
-    position: relative;
-    height: 8%;
+    position: fixed;
+    bottom: 15%;
+    height: 4%;
+    width: 50%;
+    min-height: 20px;
+    border-top: 1px solid rgba(0,0,0,0.3);
+    cursor: pointer;
     overflow-x: scroll;
 }
 

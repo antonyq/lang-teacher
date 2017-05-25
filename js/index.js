@@ -410,14 +410,16 @@ function initEventListeners () {
         let scale = getScrollScale($('.wordImgSizeBarWrapper'), $('.wordImgSizeBar'));
         let rotation = getTransform('imgArea').rotation;
         setTransform('imgArea', {rotation: rotation, scale: scale});
-        $('.completeWord').css('font-size', Math.max(Math.max(parseFloat($('.completeWord').css('font-size')), 100) * (1 - scale), 30) + 'px');
+        let fontSize = Math.max(Math.max(parseFloat($('.completeWord').css('font-size')), 100) * (1 - scale), 30);
+        $('.completeWord').css('font-size', fontSize + 'px');
+        $('.imgAreaWrapper').css('height', `calc(70% - ${(fontSize - 30)*3}px)`);
     });
 
 
     $('#listenBtn').click(function () {
         if ($(this).hasClass('playing')) {
             player.pause();
-            $(this).removeClass('playing')
+            $(this).removeClass('playing');
         } else if ($(".highlightedWord").html()) {
             let path = storageManager.getRecord($(".highlightedWord").html()).audio.path;
             if (path) {

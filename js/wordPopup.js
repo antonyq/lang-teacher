@@ -5,24 +5,34 @@ function onWordSoundChange () {
     $('.wordPopup .playBtn').removeClass('playing');
     if (document.getElementById('wordSoundPath').files[0]) {
         let name = document.getElementById('wordSoundPath').files[0].name;
-        $('.wordPopup .label').html(name);
+        $('.soundBlock .label').html(name);
     } else {
         player.reset();
-        $('.wordPopup .label').html('Проигрывающийся звук');
+        $('.soundBlock .label').html('Звук не выбран');
     }
 }
 
 function updateScrollScale (scale) {
-    console.log(scale);
-    $('.sizeBarDescription span').remove();
-    $('.sizeBarDescription').html(scale ? 'Видимый размер изображения: ' : 'Невидимо');
+    $('.sizeBarDescription span').html(!scale ? 'невидимо' : '');
     if (scale) {
-        $('.sizeBarDescription').append(`<span>${parseInt(scale * 100) +'%'}</span>`);
+        $('.sizeBarDescription span').html(parseInt(scale * 100) +'%');
+    }
+    if (!$('.uploadImgArea').hasClass('loaded')) {
+        $('.sizeBarDescription span').html('не загружено');
     }
 }
 
+// p5 components setup
+function setup () {
+    window.microphone = new p5.AudioIn();
+    microphone.start();
+    window.recorder = new p5.SoundRecorder();
+    recorder.setInput(microphone);
+    window.soundFile = new p5.SoundFile();
+}
+
 $(document).ready(function () {
-    $('.wordPopup .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
+    $('.soundBlock .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
 
     $('.imgSizeBarWrapper').scroll(function () {
         if ($('.uploadImgArea').hasClass('loaded')) {
@@ -109,6 +119,7 @@ $(document).ready(function () {
 
     $('#wordPopupRemoveImgBtn').click(function () {
         if ($('.uploadImgArea').hasClass('loaded')) {
+            $('.sizeBarDescription span').html('не загружено');
             $('.uploadImgArea').addClass('changed');
 
             imgPath = {blob: null, real: null};
@@ -123,10 +134,18 @@ $(document).ready(function () {
 
     $('#removeWordSignalBtn').click(function () {
         $('.wordPopup .playBtn').removeClass('playing');
-        $('.wordPopup .label').html('Проигрывающийся звук');
+        $('.soundBlock .label').html('Звук не выбран');
         $('#wordSoundPath').remove();
-        $('.wordPopup .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
+        $('.soundBlock .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
         player.reset();
+    });
+
+    $('#recordWordSignalBtn').mousedown(() => {
+        $('#removeWordSignalBtn').click();
+        recorder.record(soundFile);
+    }).mouseup(() => {
+        recorder.stop();
+        saveSound(soundFile, `${$('.inputWordArea').val() || popupData.word}.wav`);
     });
 
     $("#wordPopupCloseBtn, #wordPopupCancelBtn").click(function () {
@@ -142,16 +161,20 @@ $(document).ready(function () {
             player.pause();
             $('.playBtn').removeClass('playing');
         } else if (document.getElementById('wordSoundPath').files[0]) {
-            player.play(document.getElementById('wordSoundPath').files[0].path);
+            player.play({path: document.getElementById('wordSoundPath').files[0].path, element: '.playBtn'});
             $('.playBtn').addClass('playing');
-        } else if ($('.wordPopup .label').html() != 'Проигрывающийся звук' && storageManager.hasRecord(popupData.word)) {
-            player.play(storageManager.getRecord(popupData.word).audio.path);
+        } else if ($('.soundBlock .label').html() != 'Звук не выбран' && storageManager.hasRecord(popupData.word)) {
+            player.play({path: storageManager.getRecord(popupData.word).audio.path, element: '.playBtn'});
             $('.playBtn').addClass('playing');
         }
     });
 
     function onFileChanged (file) {
         if (file.name.match(/jpg|gif|png/i)) {
+            updateScrollScale(1);
+            setTransform('uploadImgArea');
+            document.getElementsByClassName('imgSizeBarWrapper')[0].scrollLeft = $('.imgSizeBar').width();
+
             $(".uploadImgArea").css('transform', 'none');
             $(".uploadImgArea").addClass('changed');
 
@@ -164,24 +187,21 @@ $(document).ready(function () {
                 "background-size": "contain"
             });
 
-            setTransform('uploadImgArea');
-            document.getElementsByClassName('imgSizeBarWrapper')[0].scrollLeft = 0;
-
             $(".uploadImgArea").addClass('loaded');
         } else alert("Поддерживаются только JPG, PNG или GIF");
     }
 
     function onCloseWordPopup() {
-        $('.wordPopup .label').html('');
+        $('.soundBlock .label').html('');
         $('#wordSoundPath').remove();
-        $('.wordPopup .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
+        $('.soundBlock .label').after('<input type="file" accept="audio/mp3, audio/mp4, audio/wav, audio/ogg" class="soundPath" id="wordSoundPath" onchange="onWordSoundChange()">');
         $(".wordPopupWrapper").removeClass('open');
         imgPath.blob = null;
         imgPath.real = null;
         imgRotation = 0;
         $(".wordPopupWrapper").hide();
         $(".uploadImgArea").removeAttr('style');
-        document.getElementsByClassName('imgSizeBarWrapper')[0].scrollTop = 0;
+        document.getElementsByClassName('imgSizeBarWrapper')[0].scrollLeft = storageManager.getRecord($('.highlightedWord').html());
         $(".uploadImgArea").removeClass('loaded changed');
         $(".inputWordArea").removeClass('changed');
         $(".inputWord").focus();

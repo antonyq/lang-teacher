@@ -5,7 +5,7 @@ window.onload = function () {
     const {BrowserWindow} = remote;
     const win = BrowserWindow.getFocusedWindow();
 
-    remote.getCurrentWindow().toggleDevTools();
+    // remote.getCurrentWindow().toggleDevTools();
 
     window.storageManager = new StorageManager();
     window.player = new Player('player');
@@ -17,6 +17,14 @@ function initApp () {
     setStudentsList();
     initEventListeners();
     setFont();
+
+    if (storageManager.studentsList.length == 0) {
+        alert('Создайте ученика');
+        $('#addStudentBtn').addClass('blink');
+        setTimeout(() => {
+            $('#addStudentBtn').removeClass('blink');
+        }, 500);
+    }
 
     $(".inputWord").focus();
 }
@@ -39,6 +47,7 @@ function setWordList (word) {
         currentStudent = $(".studentsList option:checked").val();
 
     if (currentStudent) {
+        $wordList.show();
         $wordList.html('');
         let words = storageManager.getWords(currentStudent);
         words.forEach((word, index) => {
@@ -46,6 +55,8 @@ function setWordList (word) {
         });
 
         setWordImg((words.indexOf(word) != -1) ? word : $('.wordList li#word0').html());
+    } else {
+        $wordList.hide();
     }
 }
 
@@ -55,7 +66,8 @@ function setWordImg (word) {
     word = word || storageManager.getRandomWord($('.studentsList option:checked').val());
 
     let imgPath = (storageManager.getRecord(word).path || "").replace(/\\/g, "/");
-    let imgScale = storageManager.getRecord(word).scale || 1;
+    let imgScale = storageManager.getRecord(word).scale;
+    imgScale = (imgScale == undefined || imgScale == null) ? 1 : imgScale;
     let imgRotation = storageManager.getRecord(word).rotation || 0;
 
     $(".imgArea").css({
@@ -66,7 +78,7 @@ function setWordImg (word) {
     setTransform('imgArea', {rotation: imgRotation, scale: imgScale});
 
     let scrollElem = document.getElementsByClassName('wordImgSizeBarWrapper')[0];
-    scrollElem.scrollLeft = $('.wordImgSizeBar').width() / 2;
+    scrollElem.scrollLeft = (imgPath != '') ? $('.wordImgSizeBar').width() * imgScale : 0;
 
 
     $(".completeWord").html(word);
@@ -113,7 +125,7 @@ function setWordPopup (word) {
         popupData.word = word;
         popupData.img = storageManager.getRecord(word).path;
         $(".inputWordArea").val(word);
-        $('.wordPopup .label').html(storageManager.getRecord(word).audio.path.split('\\')[storageManager.getRecord(word).audio.path.split('\\').length - 1] || 'Проигрывающийся звук');
+        $('.soundBlock .label').html(storageManager.getRecord(word).audio.path.split('\\')[storageManager.getRecord(word).audio.path.split('\\').length - 1] || 'Звук не выбран');
 
         let path = (storageManager.getRecord(word).path || '').replace(/\\/g, '/');
 
@@ -129,9 +141,13 @@ function setWordPopup (word) {
 
             setTransform('uploadImgArea', options);
 
+            let scale = storageManager.getRecord(word).scale;
             let scrollElem = document.getElementsByClassName('imgSizeBarWrapper')[0];
-            scrollElem.scrollLeft = (1 - storageManager.getRecord(word).scale || 1) * ($('.imgSizeBar').width() - $('.imgSizeBarWrapper').width());
+            scrollElem.scrollLeft = scale * ($('.imgSizeBar').width() - $('.imgSizeBarWrapper').width());
+            $('.sizeBarDescription span').html((scale) ? storageManager.getRecord(word).scale + '%' : 'невидимо');
             $(".uploadImgArea").addClass('loaded');
+        } else {
+            $('.sizeBarDescription span').html('не загружено');
         }
 
     } else {
@@ -140,7 +156,8 @@ function setWordPopup (word) {
         $(".inputWordArea").val("");
         setTransform('uploadImgArea');
         document.getElementsByClassName('imgSizeBarWrapper')[0].scrollLeft = 0;
-        $('.wordPopup .label').html('Проигрывающийся звук');
+        $('.sizeBarDescription span').html('не загружено');
+        $('.soundBlock .label').html('Звук не выбран');
     }
 
     $(".wordPopupWrapper").addClass('open');
@@ -208,7 +225,7 @@ function startEffect (type) {
     let options = storageManager.getConfig('audio', type);
     $(".main").addClass("main" + type.capitalizeFirstLetter() + "Input");
 
-    player.play(options.path, options.duration, function () {
+    player.play({path: options.path, duration: options.duration}, function () {
         if (type == 'win' && $('.main').hasClass("main" + type.capitalizeFirstLetter() + "Input")) {
             setNextWordImg();
         }
@@ -357,6 +374,7 @@ function initEventListeners () {
                     if (data) {
                         storageManager.removeStudent(currentName);
                         setStudentsList();
+                        setWordList();
                     } else {
 
                     }
@@ -391,8 +409,8 @@ function initEventListeners () {
     $('.wordImgSizeBarWrapper').scroll(function () {
         let scale = getScrollScale($('.wordImgSizeBarWrapper'), $('.wordImgSizeBar'));
         let rotation = getTransform('imgArea').rotation;
-        setTransform('imgArea', {rotation: rotation, scale: (1 - scale)});
-        $('.completeWord').css('font-size', Math.max(parseFloat($('.completeWord').css('font-size')), 100) * scale + 'px');
+        setTransform('imgArea', {rotation: rotation, scale: scale});
+        $('.completeWord').css('font-size', Math.max(Math.max(parseFloat($('.completeWord').css('font-size')), 100) * (1 - scale), 30) + 'px');
     });
 
 
@@ -403,7 +421,7 @@ function initEventListeners () {
         } else if ($(".highlightedWord").html()) {
             let path = storageManager.getRecord($(".highlightedWord").html()).audio.path;
             if (path) {
-                player.play(path);
+                player.play({path: path, element: '#listenBtn'});
                 $(this).addClass('playing');
             }
         }

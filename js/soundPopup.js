@@ -12,7 +12,7 @@ $(document).ready(function () {
                 if (document.getElementById(type + "SoundPath").files[0]  && document.getElementById(`${type}SoundDuration`).value) {
                     let path = document.getElementById(type + "SoundPath").files[0].path,
                         duration = document.getElementById(`${type}SoundDuration`).value;
-                    player.play(path, duration, function () {
+                    player.play({path: path, duration: duration}, function () {
                         $('.soundPopup .playBtn').removeClass('playing');
                     });
                     $('.soundPopup .playBtn').removeClass('playing');

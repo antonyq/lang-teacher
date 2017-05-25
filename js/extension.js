@@ -26,5 +26,5 @@ function getTransform (className) {
 }
 
 function getScrollScale (wrapperBlock, targetBlock) {
-    return Math.max(1 - wrapperBlock.scrollLeft() / (targetBlock.width() - wrapperBlock.width()), 0);
+    return Math.max(wrapperBlock.scrollLeft() / (targetBlock.width() - wrapperBlock.width()), 0);
 }

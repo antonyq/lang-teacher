@@ -23,14 +23,34 @@
     position: relative;
     float: left;
     width: 20%;
-    min-width: 20px;
+    height: 94%;
+    padding: 1%;
+}
+
+.leftArea {
+    border-right: 1px solid rgba(0,0,0, 0.3);
+}
+
+.rightArea {
+    border-left: 1px solid rgba(0,0,0, 0.3);
 }
 
 .studentBlock {
     position: relative;
-    width: 95%;
+    width: 89%;
     height: 100px;
     padding: 5%;
+    border: 1px solid rgba(0,0,0, 0.3);
+}
+
+.studentBlock > span,
+.imgBlock > span,
+.soundBlock > span {
+    position: absolute;
+    top: -14px;
+    left: 20px;
+    padding: 0 5px;
+    background: white;
 }
 
 .studentBtnBlock{
@@ -70,7 +90,6 @@
 
 .studentsList {
     position: relative;
-    top: 10px;
     width: 100%;
     padding: 2px;
     font-size: 20px;
@@ -82,15 +101,11 @@
 
 
 .wordList {
-    position: relative;
-    float: left;
-    top: 20px;
-    left: 5%;
-    max-height: 660px;
+    max-height: calc(100% - 200px);
+    min-width: 100%;
     padding: 10px 0;
     text-align: center;
     font-size: 2em;
-    list-style-type: none;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     background: rgba(102, 255, 204, 0.8);
     overflow: auto;
@@ -110,28 +125,27 @@
 
 .content {
     position: relative;
-    top: 22px;
     float: left;
+    max-height: 95%;
     height: 97%;
     width: 50%;
-    min-height: 570px;
-    min-width: 500px;
-    padding: 0 30px;
+    padding: 1%;
 }
 
 .completeWord {
     position: relative;
-    height: 25%;
-    min-height: 20%;
+    height: 20%;
+    min-height: 175px;
     width: 100%;
-    font-size: 8em;
+    font-size: 7em;
+    overflow: scroll;
     text-align: center;
 }
 
 .imgArea{
-    position: relative;
-    padding-left: 100%;
+    border-radius: 20px;
     height: 50%;
+    width: 40%;
     margin: 0 auto;
 }
 
@@ -155,7 +169,7 @@
 
 #listenBtn {
     position: relative;
-    top: 20px;
+    top: 1%;
     height: 50px;
     width: 10%;
     float: left;
@@ -172,10 +186,10 @@
 
 #placeholderBtn {
     position: relative;
-    top: 20px;
+    top: 1%;
     height: 50px;
-    width: 10%;
-    margin-left: 5%;
+    width: 15%;
+    margin-left: 31%;
     font-size: 2em;
     float: left;
     cursor: pointer;
@@ -189,33 +203,19 @@
 
 .btnArea {
     position: relative;
-    top: 22px;
-    float: left;
-
-    min-width: 200px;
-    max-width: 50%;
-
-    padding: 10px 30px;
+    left: 2%;
+    width: 100%;
 }
 
 .button {
     position: relative;
     margin-top: 20px;
-    left: 10%;
-
-    height: 5%;
-    width: 112%;
-    min-width: 40px;
-
-    padding-top: 3px;
-
+    width: 100%;
     font-size: 2em;
     text-align: center;
     cursor: pointer;
-
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     background: rgba(102, 255, 204, 0.8);
-
     display: table;
 }
 .button:first-child {  margin-top: 0;  }
@@ -244,12 +244,53 @@
 }
 
 .imgBtn {
-    position: absolute;
-    left: 20px;
     height: 50px;
     width: 50px;
+    float: left;
     cursor: pointer;
     background-size: contain !important;
+}
+
+.imgBtnBlock,
+.soundBtnBlock{
+    position: relative;
+    left: 20px;
+    width: 200px;
+    margin-top: 10px;
+    height: 50px;
+    display: inline-block;
+}
+
+.imgBtnBlock span,
+.soundBtnBlock span{
+    position: relative;
+    float: left;
+    left: 15px;
+    top: 15px;
+}
+
+.soundBtnBlock span {
+    top: 5px;
+}
+
+.soundBtnBlock {
+    left: 0;
+    top: 60px;
+    height: 30px;
+ }
+
+.soundBtnBlock > div{
+    float: left;
+    left: 0 !important;
+    top: 0 !important;
+}
+
+.hintBlock {
+    position: relative;
+    top: 140px;
+    width: 100%;
+    height: 100px;
+    color: rgba(0,0,0,0.7);
 }
 
 .wordPopupImgInput {
@@ -257,17 +298,14 @@
 }
 
 #wordPopupRotateImgBtn {
-    top: 150px;
     background: url(../img/rotateImgBtn.png) no-repeat;
 }
 
 #wordPopupDownloadImgBtn {
-    top: 10px;
     background: url(../img/downloadImg.png) no-repeat;
 }
 
 #wordPopupRemoveImgBtn {
-    top: 80px;
     background: url(../img/removeImgBtn.png) no-repeat;
 }
 
@@ -302,11 +340,9 @@
 .wordPopup{
     position: relative;
     margin: 0 auto;
-    height: 740px;
-    width: 700px;
-    padding-top: 10px;
-    padding-left: 10px;
-    padding-right: 10px;
+    height: 540px;
+    width: 1000px;
+    padding: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     background: white;
 }
@@ -324,6 +360,10 @@
     padding-bottom: 20px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     background: white;
+}
+
+.soundPopup {
+    width: 1000px;
 }
 
 .soundPopup .label,
@@ -422,6 +462,7 @@
 .playBtn:active,
 .studentBtn:active,
 #removeWordSignalBtn:active,
+#recordWordSignalBtn:active,
 #listenBtn:active {
     opacity: 0;
 }
@@ -435,7 +476,6 @@
     position: relative;
     top: 10px;
     left: 10px;
-    margin-left: 10px;
     height: 30px;
     width: 30px;
     cursor: pointer;
@@ -445,16 +485,77 @@
     transition: opacity 0.25s ease-out;
 }
 
+.imgBlock {
+    position: relative;
+    float: left;
+    width: 60%;
+    height: 450px;
+    padding: 10px;
+    outline: 1px solid rgba(0,0,0, 0.3);
+}
+
+.imgAreaBlock {
+    position: relative;
+    float: left;
+    width: 400px;
+}
+
+.soundBlock {
+    position: relative;
+    float: left;
+    width: 33%;
+    left: 10px;
+    height: 450px;
+    padding: 10px;
+    outline: 1px solid rgba(0,0,0,0.3);
+}
+
+.soundBlock .label {
+    position: relative;
+    top: 10px;
+    width: 300px;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 auto;
+    display: inline-block;
+}
+
+.soundBlock input {
+    position: relative;
+    top: 30px;
+}
+
+.wordBlock {
+    position: relative;
+    top: 20px;
+    float: left;
+    width: 100%;
+}
+
+#recordWordSignalBtn {
+    position: relative;
+    top: 10px;
+    left: 10px;
+    height: 30px;
+    width: 30px;
+    cursor: pointer;
+    background: url(../img/recordBtn.png) no-repeat;
+    background-size: contain;
+    display: inline-block;
+    transition: opacity 0.25s ease-out;
+}
+
 .uploadImgArea{
     position: relative;
-    height: 540px;
-    width: 540px;
-    margin: 0 auto;
+    height: 400px;
+    width: 400px;
     text-align: center;
     color: rgb(150, 150, 150);
     font-family: "Comic Sans MS", cursive, sans-serif;
     font-size: 30px;
     font-weight: bold;
+    border: 1px solid rgba(0,0,0,0.3);
+    border-radius: 20px;
     background: rgba(200, 200, 200, 0.8);
     display: table;
 }
@@ -475,8 +576,7 @@
 .sizeBarDescription {
     position: relative;
     margin: 0 auto;
-    width: 300px;
-    text-align: center;
+    width: 100%;
 }
 
 .sizeBarDescription span {
@@ -500,21 +600,20 @@
 
 .wordImgSizeBarWrapper {
     position: relative;
-    height: 10%;
-    cursor: pointer;
+    height: 8%;
     overflow-x: scroll;
 }
 
 .wordImgSizeBar {
     width: 1000%;
     height: 100%;
+    cursor: pointer;
 }
 
 .inputWordArea{
     position: relative;
-    float: left;
     height: 45px;
-    width: 300px;
+    width: 400px;
     padding-left: 10px;
     font-family: "Comic Sans MS", cursive, sans-serif;
     font-size: 2em;
@@ -544,17 +643,6 @@
     width: 170px;
 }
 
-.wordPopup .label {
-    position: relative;
-    top: 5px;
-    width: 240px;
-    overflow: hidden;
-    white-space: nowrap;
-    margin-left: 20px;
-    margin-right: 6px;
-    display: inline-block;
-}
-
 
 /* custom scrollbar */
 ::-webkit-scrollbar {  width: 10px;  }
@@ -579,6 +667,10 @@
 
 .mainWinInput {
     background: blueviolet;
+    animation: blink 0.5s ease-out;
+}
+
+.blink {
     animation: blink 0.5s ease-out;
 }
 

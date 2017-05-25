@@ -39,7 +39,7 @@ class StorageManager {
                     main: {
                         name: 'Comic Sans MS',
                         style: 'normal',
-                        size: '14px'
+                        size: '16px'
                     }
                 }
             }
@@ -85,7 +85,7 @@ class StorageManager {
                     'italic',
                     'oblique'
                 ],
-                sizes: [10,11,12,13,14]
+                sizes: [10,11,12,13,14,15,16]
             }
         };
 

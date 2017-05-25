@@ -12,28 +12,31 @@ class Player {
         }
     }
 
-    play (path, duration, callback) {
-        if (path) {
-            if ($('audio').attr('scr') == path) {
+    play (options, callback) {
+        if (options.path) {
+            if ($('audio').attr('scr') == options.path) {
                 $('audio')[0].play();
             } else {
                 this.pause();
-                document.getElementById(this.id).src = path;
+                document.getElementById(this.id).src = options.path;
                 $('audio')[0].load();
                 $('audio').on('canplay canplaythrough', () => {
                     $('audio')[0].play();
+                });
+                $('audio').on('ended', () => {
+                    $(options.element).removeClass('playing');
                 });
             }
         } else {
             $('audio')[0].play();
         }
-        if (duration) {
+        if (options.duration) {
             setTimeout(() => {
                 this.pause();
                 if (typeof callback == 'function') {
                     callback();
                 }
-            }, duration * 1000);
+            }, options.duration * 1000);
         }
 
     }

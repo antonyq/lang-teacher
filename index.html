@@ -17,9 +17,13 @@
     <script src="js/libs/jquery-3.1.1.min.js"></script>
     <script src="js/libs/jquery.scrollTo.min.js"></script>
     <script src="js/libs/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script>if (window.module) module = window.module;</script>
+
     <script src="js/libs/vex.combined.min.js"></script>
     <script>vex.defaultOptions.className = 'vex-theme-os'</script>
-    <script>if (window.module) module = window.module;</script>
+
+    <script src="js/libs/p5.min.js"></script>
+    <script src="js/libs/p5.sound.min.js"></script>
 
     <script src="js/libs/fontDetect.js"></script>
     <!-- LIBS connection END -->
@@ -37,6 +41,7 @@
     <div class="main">
         <div class="leftArea">
             <div class="studentBlock">
+                <span>Ученик</span>
                 <div class="studentBtnBlock">
                     <div class="studentBtn" id="addStudentBtn" title="Добавить ученика"></div>
                     <div class="studentBtn" id="editStudentBtn" title="Изменить ученика"></div>
@@ -49,7 +54,9 @@
 
         <div class="content">
             <div class="imgArea"></div>
-            <div class="wordImgSizeBarWrapper"><div class="wordImgSizeBar"></div></div>
+            <div class="wordImgSizeBarWrapper">
+                <div class="wordImgSizeBar"></div>
+            </div>
             <div class="completeWord"></div>
             <div class="wordArea">
                 <input type="text" class="inputWord">
@@ -71,24 +78,60 @@
     <div class="wordPopupWrapper">
         <div class="wordPopup">
             <div class="closeBtn" id="wordPopupCloseBtn"></div>
-            <div class='uploadImgArea'>
-                <span>Перетащите картинку сюда</span>
-            </div>
-            <div class="sizeBarDescription">Видимый размер изображения</div>
-            <div class="imgSizeBarWrapper"><div class="imgSizeBar"></div></div>
-            <div class="imgBtn" id="wordPopupDownloadImgBtn" title="Загрузить картинку"></div>
-            <input class="wordPopupImgInput" type="file" />
-            <div class="imgBtn" id="wordPopupRemoveImgBtn" title="Удалить картинку" ></div>
-            <div class="imgBtn" id="wordPopupRotateImgBtn" title="Обернуть картинку" ></div>
 
-            <div class="soundBox" id="word">
-                <div class="playBtn" id="playWordSignalBtn" title="Включить"></div>
-                <div id="removeWordSignalBtn" title="Удалить"></div>
-                <div class="label">Проигрывающийся звук</div>
+            <div class='imgBlock'>
+                <span>Картинка</span>
+                <div class="imgAreaBlock">
+                    <div class='uploadImgArea'>
+                        <span>Перетащите картинку сюда</span>
+                    </div>
+                    <div class="sizeBarDescription">Видимый размер изображения: <span></span></div>
+                    <div class="imgSizeBarWrapper"><div class="imgSizeBar"></div></div>
+                </div>
+
+                <div class="imgBtnBlock">
+                    <div class="imgBtn" id="wordPopupDownloadImgBtn" title="Загрузить картинку"></div>
+                    <input class="wordPopupImgInput" type="file" />
+                    <span>Загрузить</span>
+                </div>
+                <div class="imgBtnBlock">
+                    <div class="imgBtn" id="wordPopupRemoveImgBtn" title="Удалить картинку" ></div>
+                    <span>Удалить</span>
+                </div>
+                <div class="imgBtnBlock">
+                    <div class="imgBtn" id="wordPopupRotateImgBtn" title="Обернуть картинку" ></div>
+                    <span>Обренуть</span>
+                </div>
             </div>
-            <input type="text" class="inputWordArea" name="word" placeholder="Введите слово">
-            <div class="popupBtn" id="wordPopupSaveBtn"><span>Сохранить</span></div>
-            <div class="popupBtn" id="wordPopupCancelBtn"><span>Отмена</span></div>
+
+            <div class="soundBlock">
+                <span>Звук</span>
+                <div class="label">Проигрывающийся звук</div>
+                <div class="soundBtnBlock">
+                    <div class="playBtn" id="playWordSignalBtn" title="Включить"></div>
+                    <span>Включить</span>
+                </div>
+                <div class="soundBtnBlock">
+                    <div id="removeWordSignalBtn" title="Удалить"></div>
+                    <span>Удалить</span>
+                </div>
+                <div class="soundBtnBlock">
+                    <div id="recordWordSignalBtn" title="Для записи звука нажмите и удерживайте"></div>
+                    <span>Записать</span>
+                </div>
+
+                <div class="hintBlock">
+                    <p>Для <strong>загрузки</strong> звука в программу нажмите кнопку "Выберите файл"</p>
+                    <p>Для <strong>записи</strong> звука нажмите и удерживайте иконку "микрофон"</p>
+                </div>
+            </div>
+
+            <div class="wordBlock">
+                <input type="text" class="inputWordArea" name="word" placeholder="Введите слово">
+                <div class="popupBtn" id="wordPopupSaveBtn"><span>Сохранить</span></div>
+                <div class="popupBtn" id="wordPopupCancelBtn"><span>Отмена</span></div>
+            </div>
+
         </div>
     </div>
 
